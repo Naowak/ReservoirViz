@@ -19,17 +19,18 @@ const generateMatrix = (rho, theta) => {
   };
 };
 
-const WIN_VECTOR = { x: 0, y: 3 };
+
+const WIN_VECTOR = { x: 1, y: -1 };
 
 /**
  * --- COMPOSANTS 3D ---
  */
 
 // 1. Le Champ de Vecteurs
-const VectorField = ({ matrix, density = 12 }) => {
+const VectorField = ({ matrix, density = 40 }) => {
   const arrows = useMemo(() => {
     const temp = [];
-    const range = 4;
+    const range = 10;
     const step = (range * 2) / density;
 
     for (let x = -range; x <= range; x += step) {
@@ -59,12 +60,12 @@ const VectorField = ({ matrix, density = 12 }) => {
             {/* Corps de la flèche */}
             <mesh position={[arrow.scale / 2, 0, 0]}>
                 <boxGeometry args={[arrow.scale, 0.05, 0.01]} />
-                <meshBasicMaterial color="#475569" transparent opacity={0.4} />
+                <meshBasicMaterial color="#475569" transparent opacity={0.3} />
             </mesh>
             {/* Tête de la flèche */}
             <mesh position={[arrow.scale, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
                 <coneGeometry args={[0.08, 0.2, 4]} />
-                <meshBasicMaterial color="#64748b" transparent opacity={0.6} />
+                <meshBasicMaterial color="#64748b" transparent opacity={0.3} />
             </mesh>
         </group>
       ))}
@@ -120,7 +121,7 @@ const UnitCircle = () => {
   return (
     <group rotation={[Math.PI / 2, 0, 0]}>
         <mesh rotation={[-Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[2.98, 3.02, 64]} />
+            <ringGeometry args={[2.98, 3.02, 128]} />
             <meshBasicMaterial color="#ef4444" transparent opacity={0.3} side={THREE.DoubleSide} />
         </mesh>
     </group>
@@ -129,7 +130,7 @@ const UnitCircle = () => {
 
 // 4. Grille Personnalisée (Remplacement de Drei Grid)
 const CustomGrid = () => {
-  return <primitive object={new THREE.GridHelper(10, 10, "#1e293b", "#1e293b")} position={[0, 0, -0.1]} rotation={[Math.PI / 2, 0, 0]} />
+  return <primitive object={new THREE.GridHelper(20, 20, "#1e293b", "#1e293b")} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
 }
 
 /**
@@ -192,15 +193,6 @@ export default function ReservoirLinearViz() {
       
       {/* -- UI -- */}
       <div className="w-full md:w-80 bg-slate-800/90 backdrop-blur border-r border-slate-700 p-6 flex flex-col gap-6 z-10 shadow-2xl overflow-y-auto">
-        <div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
-            Reservoir 2D
-          </h1>
-          <p className="text-sm text-slate-400 mt-2">
-            Visualisation dynamique Echo State Network.
-          </p>
-        </div>
-
         <div className="flex flex-col gap-4 bg-slate-700/50 p-4 rounded-xl">
           <div className="flex justify-between items-center">
             <span className="text-xs font-semibold text-cyan-300 uppercase tracking-wider">État : t = {stepCount}</span>
@@ -254,13 +246,6 @@ export default function ReservoirLinearViz() {
             />
           </div>
         </div>
-
-        <div className="mt-auto bg-blue-900/20 border border-blue-500/30 p-3 rounded text-xs text-blue-200 flex gap-2">
-          <span className="text-xl">ℹ️</span>
-          <p>
-            Les flèches sont le champ <b>W</b>. Les points sont les états <b>x(t)</b> attirés par le centre.
-          </p>
-        </div>
       </div>
 
       {/* -- 3D -- */}
@@ -279,8 +264,10 @@ export default function ReservoirLinearViz() {
             enablePan={true} 
             enableZoom={true} 
             enableRotate={true}
-            minPolarAngle={0}
-            maxPolarAngle={Math.PI / 2.5}
+            minPolarAngle={ -Math.PI}
+            maxPolarAngle={Math.PI}
+            minAzimuthAngle={ 0 }
+            maxAzimuthAngle={ 0 }
           />
         </Canvas>
         
