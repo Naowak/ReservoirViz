@@ -11,33 +11,37 @@ import * as THREE from 'three';
 const VISUAL_CONFIG = {
   // Champ de vecteurs
   VECTOR_FIELD_DENSITY: 40,
-  VECTOR_FIELD_RANGE: 10,
-  VECTOR_MAX_SCALE: 0.8,
+  VECTOR_FIELD_RANGE: 3,
+  VECTOR_MAX_SCALE: 1,
   VECTOR_BODY_COLOR: "#475569",
   VECTOR_HEAD_COLOR: "#64748b",
   VECTOR_OPACITY: 0.3,
+  ARROW_BODY_LENGTH: 0.005,
+  ARROW_BODY_THICKNESS: 0.01,
+  ARROW_HEAD_RADIUS: 0.02,
+  ARROW_HEAD_HEIGHT: 0.07,
   
   // Particules
-  PARTICLE_RADIUS: 0.15,
+  PARTICLE_RADIUS: 0.05,
   PARTICLE_NEW_COLOR: "#22d3ee",
   PARTICLE_OLD_COLOR: "#818cf8",
   PARTICLE_NEW_OPACITY: 1.0,
-  PARTICLE_OLD_OPACITY: 0.6,
-  PARTICLE_EMISSIVE_INTENSITY_NEW: 2.0,
-  PARTICLE_EMISSIVE_INTENSITY_OLD: 0.5,
-  PARTICLE_LERP_SPEED: 0.1,
+  PARTICLE_OLD_OPACITY: 1,
+  PARTICLE_EMISSIVE_INTENSITY_NEW: 1.5,
+  PARTICLE_EMISSIVE_INTENSITY_OLD: 0.75,
+  PARTICLE_LERP_SPEED: 0.05,
   PARTICLE_SCALE_AMPLITUDE: 0.1,
   PARTICLE_SCALE_FREQUENCY: 5,
-  PARTICLE_MIN_DISTANCE: 0.05,
+  PARTICLE_MIN_DISTANCE: 0.01,
   
   // Cercle de stabilité
   STABILITY_CIRCLE_RADIUS: 1,
-  STABILITY_CIRCLE_THICKNESS: 0.02,
+  STABILITY_CIRCLE_THICKNESS: 0.01,
   STABILITY_CIRCLE_COLOR: "#ef4444",
   STABILITY_CIRCLE_OPACITY: 0.3,
   
   // Grille
-  GRID_SIZE: 20,
+  GRID_SIZE: 6,
   GRID_COLOR: "#1e293b",
   
   // Animation
@@ -54,6 +58,7 @@ const VISUAL_CONFIG = {
  * Simulation d'un système dynamique linéaire discret : x[n+1] = W * x[n] + Win * u[n]
 */
 const WIN_VECTOR = { x: 1, y: -1 };
+const INIT_MATRIX_VALUES = [0.85, 0, 0, 0.85]; // Matrice identité scaled
 
 /**
  * --- COMPOSANTS 3D ---
@@ -92,12 +97,13 @@ const VectorField = ({ matrix, density = VISUAL_CONFIG.VECTOR_FIELD_DENSITY }) =
         <group key={i} position={arrow.pos} rotation={[0, 0, arrow.angle]}>
             {/* Corps de la flèche */}
             <mesh position={[arrow.scale / 2, 0, 0]}>
-                <boxGeometry args={[arrow.scale, 0.05, 0.01]} />
+                <boxGeometry args={[arrow.scale, VISUAL_CONFIG.ARROW_BODY_THICKNESS, VISUAL_CONFIG.ARROW_BODY_THICKNESS]} />
+
                 <meshBasicMaterial color={VISUAL_CONFIG.VECTOR_BODY_COLOR} transparent opacity={VISUAL_CONFIG.VECTOR_OPACITY} />
             </mesh>
             {/* Tête de la flèche */}
             <mesh position={[arrow.scale, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
-                <coneGeometry args={[0.08, 0.2, 4]} />
+                <coneGeometry args={[VISUAL_CONFIG.ARROW_HEAD_RADIUS, VISUAL_CONFIG.ARROW_HEAD_HEIGHT, 4]} />
                 <meshBasicMaterial color={VISUAL_CONFIG.VECTOR_HEAD_COLOR} transparent opacity={VISUAL_CONFIG.VECTOR_OPACITY} />
             </mesh>
         </group>
@@ -176,7 +182,7 @@ export default function ReservoirLinearViz() {
   // État de la matrice W (2x2) sous forme de tableau [a, b, c, d]
   // Représente la matrice: [a b]
   //                        [c d]
-  const [matrixValues, setMatrixValues] = useState([0.85, 0, 0, 0.85]); // Matrice identité scaled
+  const [matrixValues, setMatrixValues] = useState(INIT_MATRIX_VALUES); // Matrice identité scaled
   const [particles, setParticles] = useState([]);
   const [stepCount, setStepCount] = useState(0);
 
