@@ -66,8 +66,8 @@ const VISUAL_CONFIG = {
  * --- MATHS DU RESERVOIR ---
  * Simulation d'un système dynamique linéaire discret : x[n+1] = W * x[n] + Win * u[n]
 */
-const WIN_VECTOR = { x: 1, y: -1 };
-const INIT_MATRIX_VALUES = [0.85, 0, 0, 0.85]; // Matrice identité scaled
+const INIT_WIN_VALUES = [1, 0, 0, -1];
+const INIT_MATRIX_VALUES = [0.9, 0.1, 1, 0.1]; // Matrice identité scaled
 
 /**
  * --- COMPOSANTS 3D ---
@@ -269,9 +269,9 @@ export default function ReservoirLinearViz() {
       });
 
       if (injectInput) {
-        const angleNoise = (Math.random() - 0.5) * VISUAL_CONFIG.INPUT_NOISE_AMPLITUDE; 
-        const newX = WIN_VECTOR.x + Math.sin(angleNoise) * VISUAL_CONFIG.INPUT_SCALE_FACTOR;
-        const newY = WIN_VECTOR.y + Math.cos(angleNoise) * VISUAL_CONFIG.INPUT_SCALE_FACTOR;
+        const xinVector = { x: Math.random() * 2 - 1, y: Math.random() * 2 - 1 };
+        const newX = xinVector.x * INIT_WIN_VALUES[0] + xinVector.y * INIT_WIN_VALUES[1];
+        const newY = xinVector.x * INIT_WIN_VALUES[2] + xinVector.y * INIT_WIN_VALUES[3];
 
         nextParticles.push({
           id: Date.now() + Math.random(),
