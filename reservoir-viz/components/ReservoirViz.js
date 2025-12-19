@@ -6,20 +6,53 @@ import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 /**
- * --- MATHS DU RESERVOIR ---
- * Simulation d'un système dynamique linéaire discret : x[n+1] = W * x[n] + Win * u[n]
+ * --- CONSTANTES VISUELLES ---
  */
-
-const generateMatrix = (rho, theta) => {
-  const cos = Math.cos(theta);
-  const sin = Math.sin(theta);
-  return {
-    a: rho * cos, b: -rho * sin,
-    c: rho * sin, d: rho * cos
-  };
+const VISUAL_CONFIG = {
+  // Champ de vecteurs
+  VECTOR_FIELD_DENSITY: 40,
+  VECTOR_FIELD_RANGE: 10,
+  VECTOR_MAX_SCALE: 0.8,
+  VECTOR_BODY_COLOR: "#475569",
+  VECTOR_HEAD_COLOR: "#64748b",
+  VECTOR_OPACITY: 0.3,
+  
+  // Particules
+  PARTICLE_RADIUS: 0.15,
+  PARTICLE_NEW_COLOR: "#22d3ee",
+  PARTICLE_OLD_COLOR: "#818cf8",
+  PARTICLE_NEW_OPACITY: 1.0,
+  PARTICLE_OLD_OPACITY: 0.6,
+  PARTICLE_EMISSIVE_INTENSITY_NEW: 2.0,
+  PARTICLE_EMISSIVE_INTENSITY_OLD: 0.5,
+  PARTICLE_LERP_SPEED: 0.1,
+  PARTICLE_SCALE_AMPLITUDE: 0.1,
+  PARTICLE_SCALE_FREQUENCY: 5,
+  PARTICLE_MIN_DISTANCE: 0.05,
+  
+  // Cercle de stabilité
+  STABILITY_CIRCLE_RADIUS: 1,
+  STABILITY_CIRCLE_THICKNESS: 0.02,
+  STABILITY_CIRCLE_COLOR: "#ef4444",
+  STABILITY_CIRCLE_OPACITY: 0.3,
+  
+  // Grille
+  GRID_SIZE: 20,
+  GRID_COLOR: "#1e293b",
+  
+  // Animation
+  ANIMATION_SPEED_MULTIPLIER: 1.0,
+  
+  // Input injection
+  INPUT_NOISE_AMPLITUDE: 1.0,
+  INPUT_SCALE_FACTOR: 2.0,
+  INPUT_POSITION_SCALE: 1.2
 };
 
-
+/**
+ * --- MATHS DU RESERVOIR ---
+ * Simulation d'un système dynamique linéaire discret : x[n+1] = W * x[n] + Win * u[n]
+*/
 const WIN_VECTOR = { x: 1, y: -1 };
 
 /**
@@ -27,10 +60,10 @@ const WIN_VECTOR = { x: 1, y: -1 };
  */
 
 // 1. Le Champ de Vecteurs
-const VectorField = ({ matrix, density = 40 }) => {
+const VectorField = ({ matrix, density = VISUAL_CONFIG.VECTOR_FIELD_DENSITY }) => {
   const arrows = useMemo(() => {
     const temp = [];
-    const range = 10;
+    const range = VISUAL_CONFIG.VECTOR_FIELD_RANGE;
     const step = (range * 2) / density;
 
     for (let x = -range; x <= range; x += step) {
@@ -44,7 +77,7 @@ const VectorField = ({ matrix, density = 40 }) => {
         const dirY = nextY - y;
         
         const length = Math.sqrt(dirX * dirX + dirY * dirY);
-        const scale = Math.min(length, 0.8);
+        const scale = Math.min(length, VISUAL_CONFIG.VECTOR_MAX_SCALE);
         const angle = Math.atan2(dirY, dirX);
 
         temp.push({ pos: [x, y, 0], angle, scale });
@@ -60,12 +93,12 @@ const VectorField = ({ matrix, density = 40 }) => {
             {/* Corps de la flèche */}
             <mesh position={[arrow.scale / 2, 0, 0]}>
                 <boxGeometry args={[arrow.scale, 0.05, 0.01]} />
-                <meshBasicMaterial color="#475569" transparent opacity={0.3} />
+                <meshBasicMaterial color={VISUAL_CONFIG.VECTOR_BODY_COLOR} transparent opacity={VISUAL_CONFIG.VECTOR_OPACITY} />
             </mesh>
             {/* Tête de la flèche */}
             <mesh position={[arrow.scale, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
                 <coneGeometry args={[0.08, 0.2, 4]} />
-                <meshBasicMaterial color="#64748b" transparent opacity={0.3} />
+                <meshBasicMaterial color={VISUAL_CONFIG.VECTOR_HEAD_COLOR} transparent opacity={VISUAL_CONFIG.VECTOR_OPACITY} />
             </mesh>
         </group>
       ))}
@@ -91,38 +124,41 @@ const Particle = ({ data }) => {
     if (!mesh.current) return;
     
     // Interpolation fluide (LERP)
-    mesh.current.position.x = THREE.MathUtils.lerp(mesh.current.position.x, data.x, 0.1);
-    mesh.current.position.y = THREE.MathUtils.lerp(mesh.current.position.y, data.y, 0.1);
+    mesh.current.position.x = THREE.MathUtils.lerp(mesh.current.position.x, data.x, VISUAL_CONFIG.PARTICLE_LERP_SPEED);
+    mesh.current.position.y = THREE.MathUtils.lerp(mesh.current.position.y, data.y, VISUAL_CONFIG.PARTICLE_LERP_SPEED);
     
-    const scale = 1 + Math.sin(state.clock.elapsedTime * 5 + data.id) * 0.1;
+    const scale = 1 + Math.sin(state.clock.elapsedTime * VISUAL_CONFIG.PARTICLE_SCALE_FREQUENCY + data.id) * VISUAL_CONFIG.PARTICLE_SCALE_AMPLITUDE;
     mesh.current.scale.set(scale, scale, scale);
   });
 
-  const color = data.isNew ? "#22d3ee" : "#818cf8";
-  const opacity = data.isNew ? 1 : 0.6;
+  const color = data.isNew ? VISUAL_CONFIG.PARTICLE_NEW_COLOR : VISUAL_CONFIG.PARTICLE_OLD_COLOR;
+  const opacity = data.isNew ? VISUAL_CONFIG.PARTICLE_NEW_OPACITY : VISUAL_CONFIG.PARTICLE_OLD_OPACITY;
+  const emissiveIntensity = data.isNew ? VISUAL_CONFIG.PARTICLE_EMISSIVE_INTENSITY_NEW : VISUAL_CONFIG.PARTICLE_EMISSIVE_INTENSITY_OLD;
 
   return (
     <mesh ref={mesh} position={[data.prevX, data.prevY, 0]}>
-      <sphereGeometry args={[0.15, 16, 16]} />
+      <sphereGeometry args={[VISUAL_CONFIG.PARTICLE_RADIUS, 16, 16]} />
       <meshStandardMaterial 
         color={color} 
         emissive={color}
-        emissiveIntensity={data.isNew ? 2 : 0.5}
+        emissiveIntensity={emissiveIntensity}
         transparent 
         opacity={opacity} 
       />
-      {data.isNew && <pointLight distance={1} intensity={2} color="#22d3ee" />}
+      {data.isNew && <pointLight distance={1} intensity={2} color={VISUAL_CONFIG.PARTICLE_NEW_COLOR} />}
     </mesh>
   );
 };
 
 // 3. Cercle Unitaire (Limite de stabilité)
 const UnitCircle = () => {
+  const rayon = VISUAL_CONFIG.STABILITY_CIRCLE_RADIUS;
+  const length = VISUAL_CONFIG.STABILITY_CIRCLE_THICKNESS;
   return (
     <group rotation={[Math.PI / 2, 0, 0]}>
         <mesh rotation={[-Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[2.98, 3.02, 128]} />
-            <meshBasicMaterial color="#ef4444" transparent opacity={0.3} side={THREE.DoubleSide} />
+            <ringGeometry args={[rayon - length, rayon + length, 128]} />
+            <meshBasicMaterial color={VISUAL_CONFIG.STABILITY_CIRCLE_COLOR} transparent opacity={VISUAL_CONFIG.STABILITY_CIRCLE_OPACITY} side={THREE.DoubleSide} />
         </mesh>
     </group>
   )
@@ -130,19 +166,33 @@ const UnitCircle = () => {
 
 // 4. Grille Personnalisée (Remplacement de Drei Grid)
 const CustomGrid = () => {
-  return <primitive object={new THREE.GridHelper(20, 20, "#1e293b", "#1e293b")} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
+  return <primitive object={new THREE.GridHelper(VISUAL_CONFIG.GRID_SIZE, VISUAL_CONFIG.GRID_SIZE, VISUAL_CONFIG.GRID_COLOR, VISUAL_CONFIG.GRID_COLOR)} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
 }
 
 /**
  * --- COMPOSANT PRINCIPAL ---
  */
 export default function ReservoirLinearViz() {
-  const [rho, setRho] = useState(0.85);
-  const [theta, setTheta] = useState(Math.PI / 6);
+  // État de la matrice W (2x2) sous forme de tableau [a, b, c, d]
+  // Représente la matrice: [a b]
+  //                        [c d]
+  const [matrixValues, setMatrixValues] = useState([0.85, 0, 0, 0.85]); // Matrice identité scaled
   const [particles, setParticles] = useState([]);
   const [stepCount, setStepCount] = useState(0);
 
-  const W = useMemo(() => generateMatrix(rho, theta), [rho, theta]);
+  const W = useMemo(() => ({
+    a: matrixValues[0],
+    b: matrixValues[1], 
+    c: matrixValues[2],
+    d: matrixValues[3]
+  }), [matrixValues]);
+
+  // Fonction pour mettre à jour une valeur de la matrice
+  const updateMatrixValue = (index, value) => {
+    const newValues = [...matrixValues];
+    newValues[index] = parseFloat(value) || 0;
+    setMatrixValues(newValues);
+  };
 
   const handleStep = (injectInput = false) => {
     setParticles(prev => {
@@ -159,18 +209,18 @@ export default function ReservoirLinearViz() {
           age: p.age + 1
         };
       }).filter(p => {
-        return Math.sqrt(p.x*p.x + p.y*p.y) > 0.05;
+        return Math.sqrt(p.x*p.x + p.y*p.y) > VISUAL_CONFIG.PARTICLE_MIN_DISTANCE;
       });
 
       if (injectInput) {
-        const angleNoise = (Math.random() - 0.5) * 1.0; 
-        const newX = WIN_VECTOR.x + Math.sin(angleNoise) * 2;
-        const newY = WIN_VECTOR.y + Math.cos(angleNoise) * 2;
+        const angleNoise = (Math.random() - 0.5) * VISUAL_CONFIG.INPUT_NOISE_AMPLITUDE; 
+        const newX = WIN_VECTOR.x + Math.sin(angleNoise) * VISUAL_CONFIG.INPUT_SCALE_FACTOR;
+        const newY = WIN_VECTOR.y + Math.cos(angleNoise) * VISUAL_CONFIG.INPUT_SCALE_FACTOR;
 
         nextParticles.push({
           id: Date.now() + Math.random(),
-          prevX: newX * 1.2,
-          prevY: newY * 1.2,
+          prevX: newX * VISUAL_CONFIG.INPUT_POSITION_SCALE,
+          prevY: newY * VISUAL_CONFIG.INPUT_POSITION_SCALE,
           x: newX,
           y: newY,
           isNew: true,
@@ -220,30 +270,68 @@ export default function ReservoirLinearViz() {
         </div>
 
         <div className="space-y-6">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <label>Rayon Spectral (ρ)</label>
-              <span className="font-mono text-cyan-400">{rho.toFixed(2)}</span>
+          <div className="space-y-4">
+            <div className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Matrice W (2×2)</div>
+            <div className="text-xs text-slate-400 font-mono">
+              x[n+1] = W·x[n] + Win·u[n]
             </div>
-            <input 
-              type="range" min="0.5" max="0.99" step="0.01" 
-              value={rho} 
-              onChange={(e) => setRho(parseFloat(e.target.value))}
-              className="w-full accent-cyan-400 h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <label>Rotation (θ)</label>
-              <span className="font-mono text-purple-400">{(theta * 180 / Math.PI).toFixed(0)}°</span>
+            
+            {/* Grille de la matrice 2x2 */}
+            <div className="bg-slate-700/30 p-4 rounded-lg">
+              <div className="grid grid-cols-2 gap-3">
+                {/* Première ligne */}
+                <div className="flex flex-col">
+                  <label className="text-xs text-slate-400 mb-1">W₁₁</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={matrixValues[0]}
+                    onChange={(e) => updateMatrixValue(0, e.target.value)}
+                    className="bg-slate-600 border border-slate-500 rounded px-2 py-1 text-sm text-white focus:border-cyan-400 focus:outline-none"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-xs text-slate-400 mb-1">W₁₂</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={matrixValues[1]}
+                    onChange={(e) => updateMatrixValue(1, e.target.value)}
+                    className="bg-slate-600 border border-slate-500 rounded px-2 py-1 text-sm text-white focus:border-cyan-400 focus:outline-none"
+                  />
+                </div>
+                
+                {/* Deuxième ligne */}
+                <div className="flex flex-col">
+                  <label className="text-xs text-slate-400 mb-1">W₂₁</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={matrixValues[2]}
+                    onChange={(e) => updateMatrixValue(2, e.target.value)}
+                    className="bg-slate-600 border border-slate-500 rounded px-2 py-1 text-sm text-white focus:border-cyan-400 focus:outline-none"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-xs text-slate-400 mb-1">W₂₂</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={matrixValues[3]}
+                    onChange={(e) => updateMatrixValue(3, e.target.value)}
+                    className="bg-slate-600 border border-slate-500 rounded px-2 py-1 text-sm text-white focus:border-cyan-400 focus:outline-none"
+                  />
+                </div>
+              </div>
+              
+              {/* Informations sur la stabilité */}
+              <div className="mt-3 pt-3 border-t border-slate-600">
+                <div className="text-xs text-slate-400">
+                  <div>Trace: {(matrixValues[0] + matrixValues[3]).toFixed(3)}</div>
+                  <div>Det: {(matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2]).toFixed(3)}</div>
+                </div>
+              </div>
             </div>
-            <input 
-              type="range" min="0" max="1.57" step="0.1" 
-              value={theta} 
-              onChange={(e) => setTheta(parseFloat(e.target.value))}
-              className="w-full accent-purple-400 h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer"
-            />
           </div>
         </div>
       </div>
