@@ -44,6 +44,15 @@ const VISUAL_CONFIG = {
   GRID_SIZE: 6,
   GRID_COLOR: "#1e293b",
   
+  // Axes
+  AXIS_LENGTH: 1,
+  AXIS_THICKNESS: 0.01,
+  AXIS_X_COLOR: "#ef4444", // Rouge pour X
+  AXIS_Y_COLOR: "#22c55e", // Vert pour Y
+  AXIS_ARROW_SIZE: 0.05,
+  AXIS_ARROW_HEIGHT: 0.1,
+  AXIS_OPACITY: 0.5,
+  
   // Animation
   ANIMATION_SPEED_MULTIPLIER: 1.0,
   
@@ -174,6 +183,47 @@ const UnitCircle = () => {
 const CustomGrid = () => {
   return <primitive object={new THREE.GridHelper(VISUAL_CONFIG.GRID_SIZE, VISUAL_CONFIG.GRID_SIZE, VISUAL_CONFIG.GRID_COLOR, VISUAL_CONFIG.GRID_COLOR)} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
 }
+
+// 5. Axes X et Y
+const Axes = () => {
+  const axisLength = VISUAL_CONFIG.AXIS_LENGTH;
+  const thickness = VISUAL_CONFIG.AXIS_THICKNESS;
+  const arrowSize = VISUAL_CONFIG.AXIS_ARROW_SIZE;
+  const arrowHeight = VISUAL_CONFIG.AXIS_ARROW_HEIGHT;
+  
+  return (
+    <group>
+      {/* Axe X (Rouge) */}
+      <group>
+        {/* Ligne X */}
+        <mesh position={[axisLength / 2, 0, 0]}>
+          <boxGeometry args={[axisLength, thickness, thickness]} />
+          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_X_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+        </mesh>
+        {/* Flèche X positive */}
+        <mesh position={[axisLength - arrowHeight/2 + 0.01, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+          <coneGeometry args={[arrowSize, arrowHeight, 8]} />
+          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_X_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+        </mesh>
+      </group>
+      
+      {/* Axe Y (Vert) */}
+      <group>
+        {/* Ligne Y */}
+        <mesh position={[0, axisLength / 2, 0]}>
+          <boxGeometry args={[thickness, axisLength, thickness]} />
+          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Y_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+        </mesh>
+        {/* Flèche Y positive */}
+        <mesh position={[0, axisLength - arrowHeight/2 + 0.01, 0]}>
+          <coneGeometry args={[arrowSize, arrowHeight, 8]} />
+          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Y_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+        </mesh>
+
+      </group>
+    </group>
+  );
+};
 
 /**
  * --- COMPOSANT PRINCIPAL ---
@@ -350,6 +400,7 @@ export default function ReservoirLinearViz() {
           <pointLight position={[10, 10, 10]} intensity={1} />
           
           <CustomGrid />
+          <Axes />
           <VectorField matrix={W} />
           <UnitCircle />
           <ParticleSystem particles={particles} />
@@ -365,11 +416,6 @@ export default function ReservoirLinearViz() {
           />
         </Canvas>
         
-        {/* Overlay HTML pour remplacer le texte 3D */}
-        <div className="absolute top-4 right-4 text-right pointer-events-none select-none">
-             <div className="text-red-500 font-bold opacity-50 text-xs uppercase tracking-widest mb-1">Limite de Stabilité</div>
-             <div className="text-slate-500 font-mono text-sm">x[n+1] = W·x[n] + Win·u[n]</div>
-        </div>
       </div>
     </div>
   );
