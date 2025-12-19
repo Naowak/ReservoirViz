@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  background: #0f172a; /* Couleur de fond sombre pour éviter les flashs blancs */
+  color: white;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Important pour éviter les scrollbars doubles avec le Canvas */
+  width: 100vw;
+  height: 100vh;
+}
