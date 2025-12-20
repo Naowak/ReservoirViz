@@ -49,6 +49,7 @@ const VISUAL_CONFIG = {
   AXIS_THICKNESS: 0.01,
   AXIS_X_COLOR: "#ef4444", // Rouge pour X
   AXIS_Y_COLOR: "#22c55e", // Vert pour Y
+  AXIS_Z_COLOR: "#3b82f6", // Bleu pour Z (axe imaginaire i)
   AXIS_ARROW_SIZE: 0.03,
   AXIS_ARROW_HEIGHT: 0.07,
   AXIS_OPACITY: 1,
@@ -192,7 +193,7 @@ const CustomGrid = () => {
   return <primitive object={new THREE.GridHelper(VISUAL_CONFIG.GRID_SIZE, VISUAL_CONFIG.GRID_SIZE, VISUAL_CONFIG.GRID_COLOR, VISUAL_CONFIG.GRID_COLOR)} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
 }
 
-// 5. Axes X et Y
+// 5. Axes X, Y et Z
 const Axes = () => {
   const axisLength = VISUAL_CONFIG.AXIS_LENGTH;
   const thickness = VISUAL_CONFIG.AXIS_THICKNESS;
@@ -201,7 +202,7 @@ const Axes = () => {
   
   return (
     <group>
-      {/* Axe X (Rouge) */}
+      {/* Axe X (Rouge) - Partie réelle */}
       <group>
         {/* Ligne X */}
         <mesh position={[axisLength / 2, 0, 0]}>
@@ -215,7 +216,7 @@ const Axes = () => {
         </mesh>
       </group>
       
-      {/* Axe Y (Vert) */}
+      {/* Axe Y (Vert) - Partie réelle */}
       <group>
         {/* Ligne Y */}
         <mesh position={[0, axisLength / 2, 0]}>
@@ -227,7 +228,20 @@ const Axes = () => {
           <coneGeometry args={[arrowSize, arrowHeight, 8]} />
           <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Y_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
         </mesh>
-
+      </group>
+      
+      {/* Axe Z (Bleu) - Axe imaginaire i */}
+      <group>
+        {/* Ligne Z */}
+        <mesh position={[0, 0, axisLength / 2]}>
+          <boxGeometry args={[thickness, thickness, axisLength]} />
+          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Z_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+        </mesh>
+        {/* Flèche Z positive */}
+        <mesh position={[0, 0, axisLength - arrowHeight/2 + 0.01]} rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[arrowSize, arrowHeight, 8]} />
+          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Z_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+        </mesh>
       </group>
     </group>
   );
