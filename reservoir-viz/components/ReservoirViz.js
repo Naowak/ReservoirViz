@@ -49,17 +49,17 @@ const VISUAL_CONFIG = {
   AXIS_THICKNESS: 0.01,
   AXIS_X_COLOR: "#ef4444", // Rouge pour X
   AXIS_Y_COLOR: "#22c55e", // Vert pour Y
-  AXIS_ARROW_SIZE: 0.05,
-  AXIS_ARROW_HEIGHT: 0.1,
+  AXIS_ARROW_SIZE: 0.03,
+  AXIS_ARROW_HEIGHT: 0.07,
   AXIS_OPACITY: 1,
   
   // Visualisation de la matrice W
-  MATRIX_VECTOR_THICKNESS: 0.02,
+  MATRIX_VECTOR_THICKNESS: 0.01,
   MATRIX_VECTOR_1_COLOR: "#f59e0b", // Orange pour la première colonne
   MATRIX_VECTOR_2_COLOR: "#8b5cf6", // Violet pour la deuxième colonne
   MATRIX_VECTOR_OPACITY: 1,
-  MATRIX_ARROW_SIZE: 0.05,
-  MATRIX_ARROW_HEIGHT: 0.1,
+  MATRIX_ARROW_SIZE: 0.03,
+  MATRIX_ARROW_HEIGHT: 0.07,
   
   // Animation
   ANIMATION_SPEED_MULTIPLIER: 1.0,
@@ -74,8 +74,8 @@ const VISUAL_CONFIG = {
  * --- MATHS DU RESERVOIR ---
  * Simulation d'un système dynamique linéaire discret : x[n+1] = W * x[n] + Win * u[n]
 */
-const INIT_WIN_VALUES = [1, 0, 0, -1];
-const INIT_MATRIX_VALUES = [0.9, 0.1, 1, 0.1]; // Matrice identité scaled
+const INIT_WIN_VALUES = [1, 0, 0, 1];
+const INIT_MATRIX_VALUES = [0.9, 0.3, -0.3, 0.9]; // Matrice identité scaled
 
 /**
  * --- COMPOSANTS 3D ---
@@ -255,7 +255,7 @@ const MatrixVisualization = ({ matrix }) => {
       {col1Length > 0.01 && (
         <group rotation={[0, 0, col1Angle]}>
           {/* Corps du vecteur */}
-          <mesh position={[col1Length / 2, 0, 0.02]}>
+          <mesh position={[col1Length / 2, 0, 0]}>
             <boxGeometry args={[col1Length, thickness, thickness]} />
             <meshBasicMaterial 
               color={VISUAL_CONFIG.MATRIX_VECTOR_1_COLOR} 
@@ -264,7 +264,7 @@ const MatrixVisualization = ({ matrix }) => {
             />
           </mesh>
           {/* Flèche */}
-          <mesh position={[col1Length, 0, 0.02]} rotation={[0, 0, -Math.PI / 2]}>
+          <mesh position={[col1Length, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
             <coneGeometry args={[arrowSize, arrowHeight, 8]} />
             <meshBasicMaterial 
               color={VISUAL_CONFIG.MATRIX_VECTOR_1_COLOR} 
@@ -279,7 +279,7 @@ const MatrixVisualization = ({ matrix }) => {
       {col2Length > 0.01 && (
         <group rotation={[0, 0, col2Angle]}>
           {/* Corps du vecteur */}
-          <mesh position={[col2Length / 2, 0, 0.02]}>
+          <mesh position={[col2Length / 2, 0, 0]}>
             <boxGeometry args={[col2Length, thickness, thickness]} />
             <meshBasicMaterial 
               color={VISUAL_CONFIG.MATRIX_VECTOR_2_COLOR} 
@@ -288,7 +288,7 @@ const MatrixVisualization = ({ matrix }) => {
             />
           </mesh>
           {/* Flèche */}
-          <mesh position={[col2Length, 0, 0.02]} rotation={[0, 0, -Math.PI / 2]}>
+          <mesh position={[col2Length, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
             <coneGeometry args={[arrowSize, arrowHeight, 8]} />
             <meshBasicMaterial 
               color={VISUAL_CONFIG.MATRIX_VECTOR_2_COLOR} 
