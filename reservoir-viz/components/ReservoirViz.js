@@ -51,7 +51,15 @@ const VISUAL_CONFIG = {
   AXIS_Y_COLOR: "#22c55e", // Vert pour Y
   AXIS_ARROW_SIZE: 0.05,
   AXIS_ARROW_HEIGHT: 0.1,
-  AXIS_OPACITY: 0.5,
+  AXIS_OPACITY: 1,
+  
+  // Visualisation de la matrice W
+  MATRIX_VECTOR_THICKNESS: 0.02,
+  MATRIX_VECTOR_1_COLOR: "#f59e0b", // Orange pour la première colonne
+  MATRIX_VECTOR_2_COLOR: "#8b5cf6", // Violet pour la deuxième colonne
+  MATRIX_VECTOR_OPACITY: 1,
+  MATRIX_ARROW_SIZE: 0.05,
+  MATRIX_ARROW_HEIGHT: 0.1,
   
   // Animation
   ANIMATION_SPEED_MULTIPLIER: 1.0,
@@ -225,6 +233,75 @@ const Axes = () => {
   );
 };
 
+// 6. Visualisation de la matrice W (vecteurs colonnes)
+const MatrixVisualization = ({ matrix }) => {
+  const thickness = VISUAL_CONFIG.MATRIX_VECTOR_THICKNESS;
+  const arrowSize = VISUAL_CONFIG.MATRIX_ARROW_SIZE;
+  const arrowHeight = VISUAL_CONFIG.MATRIX_ARROW_HEIGHT;
+  
+  // Première colonne de W : [a, c]
+  const col1 = { x: matrix.a, y: matrix.c };
+  const col1Length = Math.sqrt(col1.x * col1.x + col1.y * col1.y);
+  const col1Angle = Math.atan2(col1.y, col1.x);
+  
+  // Deuxième colonne de W : [b, d]
+  const col2 = { x: matrix.b, y: matrix.d };
+  const col2Length = Math.sqrt(col2.x * col2.x + col2.y * col2.y);
+  const col2Angle = Math.atan2(col2.y, col2.x);
+  
+  return (
+    <group>
+      {/* Première colonne de W (Orange) */}
+      {col1Length > 0.01 && (
+        <group rotation={[0, 0, col1Angle]}>
+          {/* Corps du vecteur */}
+          <mesh position={[col1Length / 2, 0, 0.02]}>
+            <boxGeometry args={[col1Length, thickness, thickness]} />
+            <meshBasicMaterial 
+              color={VISUAL_CONFIG.MATRIX_VECTOR_1_COLOR} 
+              transparent 
+              opacity={VISUAL_CONFIG.MATRIX_VECTOR_OPACITY} 
+            />
+          </mesh>
+          {/* Flèche */}
+          <mesh position={[col1Length, 0, 0.02]} rotation={[0, 0, -Math.PI / 2]}>
+            <coneGeometry args={[arrowSize, arrowHeight, 8]} />
+            <meshBasicMaterial 
+              color={VISUAL_CONFIG.MATRIX_VECTOR_1_COLOR} 
+              transparent 
+              opacity={VISUAL_CONFIG.MATRIX_VECTOR_OPACITY} 
+            />
+          </mesh>
+        </group>
+      )}
+      
+      {/* Deuxième colonne de W (Violet) */}
+      {col2Length > 0.01 && (
+        <group rotation={[0, 0, col2Angle]}>
+          {/* Corps du vecteur */}
+          <mesh position={[col2Length / 2, 0, 0.02]}>
+            <boxGeometry args={[col2Length, thickness, thickness]} />
+            <meshBasicMaterial 
+              color={VISUAL_CONFIG.MATRIX_VECTOR_2_COLOR} 
+              transparent 
+              opacity={VISUAL_CONFIG.MATRIX_VECTOR_OPACITY} 
+            />
+          </mesh>
+          {/* Flèche */}
+          <mesh position={[col2Length, 0, 0.02]} rotation={[0, 0, -Math.PI / 2]}>
+            <coneGeometry args={[arrowSize, arrowHeight, 8]} />
+            <meshBasicMaterial 
+              color={VISUAL_CONFIG.MATRIX_VECTOR_2_COLOR} 
+              transparent 
+              opacity={VISUAL_CONFIG.MATRIX_VECTOR_OPACITY} 
+            />
+          </mesh>
+        </group>
+      )}
+    </group>
+  );
+};
+
 /**
  * --- COMPOSANT PRINCIPAL ---
  */
@@ -385,6 +462,22 @@ export default function ReservoirLinearViz() {
                 <div className="text-xs text-slate-400">
                   <div>Trace: {(matrixValues[0] + matrixValues[3]).toFixed(3)}</div>
                   <div>Det: {(matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2]).toFixed(3)}</div>
+                  <div>Spectral Radius: {Math.max(Math.abs(matrixValues[0]), Math.abs(matrixValues[3])).toFixed(3)}</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Légende des vecteurs colonnes */}
+            <div className="bg-slate-700/30 p-3 rounded-lg">
+              <div className="text-xs font-semibold text-slate-300 mb-2">Visualisation de W</div>
+              <div className="space-y-1 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-0.5 bg-amber-500"></div>
+                  <span className="text-amber-400">Colonne 1: [{matrixValues[0].toFixed(2)}, {matrixValues[2].toFixed(2)}]</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-0.5 bg-violet-500"></div>
+                  <span className="text-violet-400">Colonne 2: [{matrixValues[1].toFixed(2)}, {matrixValues[3].toFixed(2)}]</span>
                 </div>
               </div>
             </div>
@@ -401,6 +494,7 @@ export default function ReservoirLinearViz() {
           
           <CustomGrid />
           <Axes />
+          <MatrixVisualization matrix={W} />
           <VectorField matrix={W} />
           <UnitCircle />
           <ParticleSystem particles={particles} />
