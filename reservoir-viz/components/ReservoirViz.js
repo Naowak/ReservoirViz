@@ -341,6 +341,120 @@ export default function ReservoirLinearViz() {
     setMatrixValues(newValues);
   };
 
+  // Calcul des valeurs propres et vecteurs propres pour une matrice 2x2
+  const eigenAnalysis = useMemo(() => {
+    const a = matrixValues[0]; // W₁₁
+    const b = matrixValues[1]; // W₁₂
+    const c = matrixValues[2]; // W₂₁
+    const d = matrixValues[3]; // W₂₂
+    
+    // Calcul des valeurs propres: λ = (trace ± √(discriminant)) / 2
+    const trace = a + d;
+    const det = a * d - b * c;
+    const discriminant = trace * trace - 4 * det;
+    
+    let eigenvalue1, eigenvalue2;
+    let eigenvector1, eigenvector2;
+    let isComplex = false;
+    
+    if (discriminant >= 0) {
+      // Valeurs propres réelles
+      const sqrtDiscriminant = Math.sqrt(discriminant);
+      eigenvalue1 = (trace + sqrtDiscriminant) / 2;
+      eigenvalue2 = (trace - sqrtDiscriminant) / 2;
+      
+      // Calcul des vecteurs propres
+      // Pour λ₁: (W - λ₁I)v = 0
+      if (Math.abs(b) > 1e-10) {
+        eigenvector1 = { x: 1, y: (eigenvalue1 - a) / b };
+        eigenvector2 = { x: 1, y: (eigenvalue2 - a) / b };
+      } else if (Math.abs(c) > 1e-10) {
+        eigenvector1 = { x: (eigenvalue1 - d) / c, y: 1 };
+        eigenvector2 = { x: (eigenvalue2 - d) / c, y: 1 };
+      } else {
+        // Matrice diagonale
+        eigenvector1 = { x: 1, y: 0 };
+        eigenvector2 = { x: 0, y: 1 };
+      }
+      
+      // Normalisation des vecteurs propres
+      const norm1 = Math.sqrt(eigenvector1.x * eigenvector1.x + eigenvector1.y * eigenvector1.y);
+      const norm2 = Math.sqrt(eigenvector2.x * eigenvector2.x + eigenvector2.y * eigenvector2.y);
+      
+      if (norm1 > 1e-10) {
+        eigenvector1.x /= norm1;
+        eigenvector1.y /= norm1;
+      }
+      if (norm2 > 1e-10) {
+        eigenvector2.x /= norm2;
+        eigenvector2.y /= norm2;
+      }
+      
+      // Conversion vers format complexe uniforme pour l'affichage
+      eigenvector1 = {
+        x: { real: eigenvector1.x, imag: 0 },
+        y: { real: eigenvector1.y, imag: 0 }
+      };
+      eigenvector2 = {
+        x: { real: eigenvector2.x, imag: 0 },
+        y: { real: eigenvector2.y, imag: 0 }
+      };
+      
+    } else {
+      // Valeurs propres complexes
+      isComplex = true;
+      const realPart = trace / 2;
+      const imagPart = Math.sqrt(-discriminant) / 2;
+      
+      eigenvalue1 = { real: realPart, imag: imagPart };
+      eigenvalue2 = { real: realPart, imag: -imagPart };
+      
+      // Pour les valeurs propres complexes, calcul des vecteurs propres complexes
+      // (W - λI)v = 0 où λ = realPart + i*imagPart
+      // On résout (W - realPart*I - i*imagPart*I)v = 0
+      if (Math.abs(b) > 1e-10) {
+        // v₁ = [1, (realPart - a)/b + i*imagPart/b]
+        eigenvector1 = { 
+          x: { real: 1, imag: 0 }, 
+          y: { real: (realPart - a) / b, imag: imagPart / b } 
+        };
+        eigenvector2 = { 
+          x: { real: 1, imag: 0 }, 
+          y: { real: (realPart - a) / b, imag: -imagPart / b } 
+        };
+      } else if (Math.abs(c) > 1e-10) {
+        eigenvector1 = { 
+          x: { real: (realPart - d) / c, imag: imagPart / c }, 
+          y: { real: 1, imag: 0 } 
+        };
+        eigenvector2 = { 
+          x: { real: (realPart - d) / c, imag: -imagPart / c }, 
+          y: { real: 1, imag: 0 } 
+        };
+      } else {
+        eigenvector1 = { 
+          x: { real: 1, imag: 0 }, 
+          y: { real: 0, imag: 0 } 
+        };
+        eigenvector2 = { 
+          x: { real: 0, imag: 0 }, 
+          y: { real: 1, imag: 0 } 
+        };
+      }
+    }
+    
+    return {
+      eigenvalue1,
+      eigenvalue2,
+      eigenvector1,
+      eigenvector2,
+      isComplex,
+      spectralRadius: isComplex ? 
+        Math.sqrt(eigenvalue1.real * eigenvalue1.real + eigenvalue1.imag * eigenvalue1.imag) :
+        Math.max(Math.abs(eigenvalue1), Math.abs(eigenvalue2))
+    };
+  }, [matrixValues]);
+
   const handleStep = (injectInput = false) => {
     setParticles(prev => {
       const nextParticles = prev.map(p => {
@@ -471,7 +585,23 @@ export default function ReservoirLinearViz() {
                 <div className="text-xs text-slate-400">
                   <div>Trace: {(matrixValues[0] + matrixValues[3]).toFixed(3)}</div>
                   <div>Det: {(matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2]).toFixed(3)}</div>
-                  <div>Spectral Radius: {Math.max(Math.abs(matrixValues[0]), Math.abs(matrixValues[3])).toFixed(3)}</div>
+                  <div>Spectral Radius: {eigenAnalysis.spectralRadius.toFixed(3)}</div>
+                  
+                  {/* Valeurs propres */}
+                  <div className="pt-2 border-t border-slate-700">
+                    <div className="font-semibold text-slate-300 mb-1">Valeurs propres:</div>
+                    <>
+                      <div>λ₁: {eigenAnalysis.eigenvalue1.real ? eigenAnalysis.eigenvalue1.real.toFixed(3) : eigenAnalysis.eigenvalue1.toFixed(3)} {eigenAnalysis.eigenvalue1.imag !== undefined ? (eigenAnalysis.eigenvalue1.imag >= 0 ? '+' : '') + eigenAnalysis.eigenvalue1.imag.toFixed(3) + 'i' : '+0.000i'}</div>
+                      <div>λ₂: {eigenAnalysis.eigenvalue2.real ? eigenAnalysis.eigenvalue2.real.toFixed(3) : eigenAnalysis.eigenvalue2.toFixed(3)} {eigenAnalysis.eigenvalue2.imag !== undefined ? (eigenAnalysis.eigenvalue2.imag >= 0 ? '+' : '') + eigenAnalysis.eigenvalue2.imag.toFixed(3) + 'i' : '+0.000i'}</div>
+                    </>
+                  </div>
+                  
+                  {/* Vecteurs propres */}
+                  <div className="pt-2 border-t border-slate-700">
+                    <div className="font-semibold text-slate-300 mb-1">Vecteurs propres:</div>
+                    <div>v₁: [{eigenAnalysis.eigenvector1.x.real.toFixed(3)}{eigenAnalysis.eigenvector1.x.imag >= 0 ? '+' : ''}{eigenAnalysis.eigenvector1.x.imag.toFixed(3)}i, {eigenAnalysis.eigenvector1.y.real.toFixed(3)}{eigenAnalysis.eigenvector1.y.imag >= 0 ? '+' : ''}{eigenAnalysis.eigenvector1.y.imag.toFixed(3)}i]</div>
+                    <div>v₂: [{eigenAnalysis.eigenvector2.x.real.toFixed(3)}{eigenAnalysis.eigenvector2.x.imag >= 0 ? '+' : ''}{eigenAnalysis.eigenvector2.x.imag.toFixed(3)}i, {eigenAnalysis.eigenvector2.y.real.toFixed(3)}{eigenAnalysis.eigenvector2.y.imag >= 0 ? '+' : ''}{eigenAnalysis.eigenvector2.y.imag.toFixed(3)}i]</div>
+                  </div>
                 </div>
               </div>
             </div>
