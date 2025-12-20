@@ -404,16 +404,11 @@ export default function ReservoirLinearViz() {
 
         <div className="space-y-6">
           <div className="space-y-4">
-            <div className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Matrice W (2×2)</div>
-            <div className="text-xs text-slate-400 font-mono">
-              x[n+1] = W·x[n] + Win·u[n]
-            </div>
-            
             {/* Grille de la matrice 2x2 */}
             <div className="bg-slate-700/30 p-4 rounded-lg">
               <div className="grid grid-cols-2 gap-3">
                 {/* Première ligne */}
-                <div className="flex flex-col">
+                <div className="flex flex-row">
                   <label className="text-xs text-slate-400 mb-1">W₁₁</label>
                   <input
                     type="number"
@@ -423,7 +418,7 @@ export default function ReservoirLinearViz() {
                     className="bg-slate-600 border border-slate-500 rounded px-2 py-1 text-sm text-white focus:border-cyan-400 focus:outline-none"
                   />
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-row">
                   <label className="text-xs text-slate-400 mb-1">W₁₂</label>
                   <input
                     type="number"
@@ -435,7 +430,7 @@ export default function ReservoirLinearViz() {
                 </div>
                 
                 {/* Deuxième ligne */}
-                <div className="flex flex-col">
+                <div className="flex flex-row">
                   <label className="text-xs text-slate-400 mb-1">W₂₁</label>
                   <input
                     type="number"
@@ -445,7 +440,7 @@ export default function ReservoirLinearViz() {
                     className="bg-slate-600 border border-slate-500 rounded px-2 py-1 text-sm text-white focus:border-cyan-400 focus:outline-none"
                   />
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-row">
                   <label className="text-xs text-slate-400 mb-1">W₂₂</label>
                   <input
                     type="number"
@@ -467,20 +462,7 @@ export default function ReservoirLinearViz() {
               </div>
             </div>
             
-            {/* Légende des vecteurs colonnes */}
-            <div className="bg-slate-700/30 p-3 rounded-lg">
-              <div className="text-xs font-semibold text-slate-300 mb-2">Visualisation de W</div>
-              <div className="space-y-1 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-0.5 bg-amber-500"></div>
-                  <span className="text-amber-400">Colonne 1: [{matrixValues[0].toFixed(2)}, {matrixValues[2].toFixed(2)}]</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-0.5 bg-violet-500"></div>
-                  <span className="text-violet-400">Colonne 2: [{matrixValues[1].toFixed(2)}, {matrixValues[3].toFixed(2)}]</span>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
