@@ -390,47 +390,66 @@ const EigenVisualization = ({ eigenAnalysis }) => {
   
   // Fonction pour créer une flèche 3D
   const Arrow3D = ({ start, end, color, thickness: t }) => {
-    // Vérifications de sécurité
+    // Sécurité
     if (!start || !end) return null;
-    if (isNaN(start.x) || isNaN(start.y) || isNaN(start.z)) return null;
-    if (isNaN(end.x) || isNaN(end.y) || isNaN(end.z)) return null;
-    if (isNaN(t) || t <= 0) return null;
-    
-    const dx = end.x - start.x;
-    const dy = end.y - start.y;  
-    const dz = end.z - start.z;
-    const length = Math.sqrt(dx*dx + dy*dy + dz*dz);
-    
-    if (isNaN(length) || length < 0.01) return null;
-    
-    // Position du milieu pour le corps
-    const midX = start.x + dx/2;
-    const midY = start.y + dy/2;
-    const midZ = start.z + dz/2;
-    
-    // Vérifications supplémentaires
-    if (isNaN(midX) || isNaN(midY) || isNaN(midZ)) return null;
-    
-    // Calcul des angles de rotation
-    const phi = Math.atan2(Math.sqrt(dx*dx + dz*dz), dy);
-    const theta = Math.atan2(dx, dz);
-    
-    if (isNaN(phi) || isNaN(theta)) return null;
-    
+
+    // Calculs mémorisés pour éviter de recalculer à chaque frame si les props ne changent pas
+    const { length, midPoint, quaternion, endPos } = useMemo(() => {
+      // 1. Conversion en Vector3 pour utiliser les méthodes mathématiques de Three.js
+      const startVec = new THREE.Vector3(start.x, start.y, start.z);
+      const endVec = new THREE.Vector3(end.x, end.y, end.z);
+      
+      // 2. Calcul de la direction et de la longueur
+      const direction = new THREE.Vector3().subVectors(endVec, startVec);
+      const len = direction.length();
+      
+      // Sécurité longueur nulle
+      if (len < 0.001) return { length: 0, midPoint: [0,0,0], quaternion: new THREE.Quaternion() };
+
+      // 3. Position du milieu (pour le cylindre)
+      const mid = new THREE.Vector3().addVectors(startVec, endVec).multiplyScalar(0.5);
+
+      // 4. LE SECRET : Calculer la rotation via Quaternion
+      // On veut aligner l'axe Y (0, 1, 0) - orientation par défaut des cylindres - vers notre direction
+      const alignDir = direction.clone().normalize();
+      const quat = new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 1, 0), // Vecteur "Haut" par défaut
+        alignDir
+      );
+
+      return { 
+        length: len, 
+        midPoint: [mid.x, mid.y, mid.z], 
+        quaternion: quat,
+        endPos: [end.x, end.y, end.z]
+      };
+    }, [start, end]);
+
+    if (length < 0.01) return null;
+
+    // Dimensions de la tête
+    const headLength = t * 4; // ou une valeur fixe comme 0.2
+    const headRadius = t * 2;
+    const bodyLength = length - headLength;
+
     return (
       <group>
-        {/* Corps de la flèche */}
+        {/* Corps de la flèche (Cylindre) */}
+        {/* On doit décaler le cylindre pour qu'il ne dépasse pas dans la tête */}
         <mesh 
-          position={[midX, midY, midZ]} 
-          rotation={[phi, 0, -theta]}
+          position={midPoint} 
+          quaternion={quaternion} 
+          // Note: Si vous voulez être très précis, il faudrait décaler le midpoint 
+          // légèrement en arrière pour compenser la tête, mais pour une viz simple c'est ok.
         >
           <cylinderGeometry args={[t/2, t/2, length, 8]} />
-          <meshBasicMaterial color={color} transparent opacity={VISUAL_CONFIG.EIGEN_OPACITY} />
+          <meshBasicMaterial color={color} transparent opacity={0.6} />
         </mesh>
-        {/* Tête de flèche */}
+
+        {/* Tête de flèche (Cône) */}
         <mesh 
           position={[end.x, end.y, end.z]}
-          rotation={[phi, 0, -theta]}
+          quaternion={quaternion}
         >
           <coneGeometry args={[arrowSize, arrowHeight, 8]} />
           <meshBasicMaterial color={color} transparent opacity={VISUAL_CONFIG.EIGEN_OPACITY} />
