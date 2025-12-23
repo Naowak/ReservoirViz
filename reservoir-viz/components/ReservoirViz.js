@@ -62,6 +62,16 @@ const VISUAL_CONFIG = {
   MATRIX_ARROW_SIZE: 0.03,
   MATRIX_ARROW_HEIGHT: 0.07,
   
+  // Vecteurs propres et valeurs propres
+  EIGEN_VECTOR_THICKNESS: 0.015,
+  EIGEN_VECTOR_1_COLOR: "#10b981", // Vert emeraude pour v₁
+  EIGEN_VECTOR_2_COLOR: "#f97316", // Orange pour v₂
+  EIGEN_VALUE_1_COLOR: "#06b6d4", // Cyan pour λ₁
+  EIGEN_VALUE_2_COLOR: "#ec4899", // Rose pour λ₂
+  EIGEN_OPACITY: 0.9,
+  EIGEN_ARROW_SIZE: 0.04,
+  EIGEN_ARROW_HEIGHT: 0.1,
+  
   // Animation
   ANIMATION_SPEED_MULTIPLIER: 1.0,
   
@@ -76,7 +86,8 @@ const VISUAL_CONFIG = {
  * Simulation d'un système dynamique linéaire discret : x[n+1] = W * x[n] + Win * u[n]
 */
 const INIT_WIN_VALUES = [1, 0, 0, 1];
-const INIT_MATRIX_VALUES = [0.9, 0.3, -0.3, 0.9]; // Matrice identité scaled
+// const INIT_MATRIX_VALUES = [0.9, 0.3, -0.3, 0.9]; // Matrice identité scaled
+const INIT_MATRIX_VALUES = [0, -1, 1, 0]; // Matrice identité scaled
 
 /**
  * --- COMPOSANTS 3D ---
@@ -316,6 +327,155 @@ const MatrixVisualization = ({ matrix }) => {
   );
 };
 
+// 7. Visualisation des valeurs propres et vecteurs propres
+const EigenVisualization = ({ eigenAnalysis }) => {
+  const thickness = VISUAL_CONFIG.EIGEN_VECTOR_THICKNESS;
+  const arrowSize = VISUAL_CONFIG.EIGEN_ARROW_SIZE;
+  const arrowHeight = VISUAL_CONFIG.EIGEN_ARROW_HEIGHT;
+  
+  // Fonction pour créer un vecteur 3D à partir d'un nombre complexe
+  const createComplexVector = (complexNum, scale = 1) => {
+    if (!complexNum) return { x: 0, y: 0, z: 0, length: 0 };
+    
+    const real = isNaN(complexNum.real) ? (isNaN(complexNum) ? 0 : Number(complexNum) || 0) : Number(complexNum.real) || 0;
+    const imag = isNaN(complexNum.imag) ? 0 : Number(complexNum.imag) || 0;
+    const safeScale = isNaN(scale) ? 1 : Number(scale) || 1;
+    
+    const x = real * safeScale;
+    const y = 0;
+    const z = imag * safeScale;
+    const length = Math.sqrt(real * real + imag * imag) * safeScale;
+    
+    return {
+      x: isNaN(x) ? 0 : x,
+      y: isNaN(y) ? 0 : y,
+      z: isNaN(z) ? 0 : z,
+      length: isNaN(length) ? 0 : length
+    };
+  };
+
+  // Fonction pour créer un vecteur propre 3D
+  const createEigenVector = (eigenvector, scale = 1) => {
+    if (!eigenvector || !eigenvector.x || !eigenvector.y) {
+      return { x: 0, y: 0, z: 0, length: 0 };
+    }
+    
+    const safeScale = isNaN(scale) ? 1 : Number(scale) || 1;
+    
+    const xReal = (isNaN(eigenvector.x.real) ? 0 : Number(eigenvector.x.real) || 0) * safeScale;
+    const xImag = (isNaN(eigenvector.x.imag) ? 0 : Number(eigenvector.x.imag) || 0) * safeScale;
+    const yReal = (isNaN(eigenvector.y.real) ? 0 : Number(eigenvector.y.real) || 0) * safeScale;
+    const yImag = (isNaN(eigenvector.y.imag) ? 0 : Number(eigenvector.y.imag) || 0) * safeScale;
+    
+    const x = isNaN(xReal) ? 0 : xReal;
+    const y = isNaN(yReal) ? 0 : yReal;
+    const z = isNaN(xImag + yImag) ? 0 : (xImag + yImag); // Somme des parties imaginaires sur l'axe Z
+    const length = Math.sqrt(x*x + y*y + z*z);
+    
+    return {
+      x,
+      y,
+      z,
+      length: isNaN(length) ? 0 : length
+    };
+  };
+
+  // Calcul des positions des valeurs propres (comme vecteurs depuis l'origine)
+  const eigenValue1Vec = createComplexVector(eigenAnalysis.eigenvalue1, 1.5);
+  const eigenValue2Vec = createComplexVector(eigenAnalysis.eigenvalue2, 1.5);
+  
+  // Calcul des vecteurs propres
+  const eigenVector1 = createEigenVector(eigenAnalysis.eigenvector1, 1.2);
+  const eigenVector2 = createEigenVector(eigenAnalysis.eigenvector2, 1.2);
+  
+  // Fonction pour créer une flèche 3D
+  const Arrow3D = ({ start, end, color, thickness: t }) => {
+    // Vérifications de sécurité
+    if (!start || !end) return null;
+    if (isNaN(start.x) || isNaN(start.y) || isNaN(start.z)) return null;
+    if (isNaN(end.x) || isNaN(end.y) || isNaN(end.z)) return null;
+    if (isNaN(t) || t <= 0) return null;
+    
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;  
+    const dz = end.z - start.z;
+    const length = Math.sqrt(dx*dx + dy*dy + dz*dz);
+    
+    if (isNaN(length) || length < 0.01) return null;
+    
+    // Position du milieu pour le corps
+    const midX = start.x + dx/2;
+    const midY = start.y + dy/2;
+    const midZ = start.z + dz/2;
+    
+    // Vérifications supplémentaires
+    if (isNaN(midX) || isNaN(midY) || isNaN(midZ)) return null;
+    
+    // Calcul des angles de rotation
+    const phi = Math.atan2(Math.sqrt(dx*dx + dz*dz), dy);
+    const theta = Math.atan2(dx, dz);
+    
+    if (isNaN(phi) || isNaN(theta)) return null;
+    
+    return (
+      <group>
+        {/* Corps de la flèche */}
+        <mesh 
+          position={[midX, midY, midZ]} 
+          rotation={[phi, theta, 0]}
+        >
+          <cylinderGeometry args={[t/2, t/2, length, 8]} />
+          <meshBasicMaterial color={color} transparent opacity={VISUAL_CONFIG.EIGEN_OPACITY} />
+        </mesh>
+        {/* Tête de flèche */}
+        <mesh 
+          position={[end.x, end.y, end.z]}
+          rotation={[phi, theta, 0]}
+        >
+          <coneGeometry args={[arrowSize, arrowHeight, 8]} />
+          <meshBasicMaterial color={color} transparent opacity={VISUAL_CONFIG.EIGEN_OPACITY} />
+        </mesh>
+      </group>
+    );
+  };
+  
+  return (
+    <group>
+      {/* Valeur propre λ₁ (comme vecteur) */}
+      <Arrow3D 
+        start={{x: 0, y: 0, z: 0}} 
+        end={eigenValue1Vec} 
+        color={VISUAL_CONFIG.EIGEN_VALUE_1_COLOR} 
+        thickness={thickness/2}
+      />
+
+      {/* Valeur propre λ₂ (comme vecteur) */}
+      <Arrow3D 
+        start={{x: 0, y: 0, z: 0}} 
+        end={eigenValue2Vec} 
+        color={VISUAL_CONFIG.EIGEN_VALUE_2_COLOR} 
+        thickness={thickness/2}
+      />
+
+      {/* Vecteur propre v₁ */}
+      <Arrow3D 
+        start={{x: 0, y: 0, z: 0}} 
+        end={eigenVector1} 
+        color={VISUAL_CONFIG.EIGEN_VECTOR_1_COLOR} 
+        thickness={thickness}
+      />
+
+      {/* Vecteur propre v₂ */}
+      <Arrow3D 
+        start={{x: 0, y: 0, z: 0}} 
+        end={eigenVector2} 
+        color={VISUAL_CONFIG.EIGEN_VECTOR_2_COLOR} 
+        thickness={thickness}
+      />
+    </group>
+  );
+};
+
 /**
  * --- COMPOSANT PRINCIPAL ---
  */
@@ -343,10 +503,10 @@ export default function ReservoirLinearViz() {
 
   // Calcul des valeurs propres et vecteurs propres pour une matrice 2x2
   const eigenAnalysis = useMemo(() => {
-    const a = matrixValues[0]; // W₁₁
-    const b = matrixValues[1]; // W₁₂
-    const c = matrixValues[2]; // W₂₁
-    const d = matrixValues[3]; // W₂₂
+    const a = isNaN(matrixValues[0]) ? 0 : matrixValues[0]; // W₁₁
+    const b = isNaN(matrixValues[1]) ? 0 : matrixValues[1]; // W₁₂
+    const c = isNaN(matrixValues[2]) ? 0 : matrixValues[2]; // W₂₁
+    const d = isNaN(matrixValues[3]) ? 0 : matrixValues[3]; // W₂₂
     
     // Calcul des valeurs propres: λ = (trace ± √(discriminant)) / 2
     const trace = a + d;
@@ -356,6 +516,19 @@ export default function ReservoirLinearViz() {
     let eigenvalue1, eigenvalue2;
     let eigenvector1, eigenvector2;
     let isComplex = false;
+    
+    // Vérifications de sécurité
+    if (isNaN(trace) || isNaN(det) || isNaN(discriminant)) {
+      // Valeurs par défaut en cas d'erreur
+      return {
+        eigenvalue1: { real: 0, imag: 0 },
+        eigenvalue2: { real: 0, imag: 0 },
+        eigenvector1: { x: { real: 1, imag: 0 }, y: { real: 0, imag: 0 } },
+        eigenvector2: { x: { real: 0, imag: 0 }, y: { real: 1, imag: 0 } },
+        isComplex: false,
+        spectralRadius: 0
+      };
+    }
     
     if (discriminant >= 0) {
       // Valeurs propres réelles
@@ -449,9 +622,19 @@ export default function ReservoirLinearViz() {
       eigenvector1,
       eigenvector2,
       isComplex,
-      spectralRadius: isComplex ? 
-        Math.sqrt(eigenvalue1.real * eigenvalue1.real + eigenvalue1.imag * eigenvalue1.imag) :
-        Math.max(Math.abs(eigenvalue1), Math.abs(eigenvalue2))
+      spectralRadius: (() => {
+        if (isComplex) {
+          const real1 = eigenvalue1.real || 0;
+          const imag1 = eigenvalue1.imag || 0;
+          const radius = Math.sqrt(real1 * real1 + imag1 * imag1);
+          return isNaN(radius) ? 0 : radius;
+        } else {
+          const abs1 = Math.abs(eigenvalue1 || 0);
+          const abs2 = Math.abs(eigenvalue2 || 0);
+          const max = Math.max(abs1, abs2);
+          return isNaN(max) ? 0 : max;
+        }
+      })()
     };
   }, [matrixValues]);
 
@@ -581,26 +764,49 @@ export default function ReservoirLinearViz() {
               </div>
               
               {/* Informations sur la stabilité */}
-              <div className="mt-3 pt-3 border-t border-slate-600">
-                <div className="text-xs text-slate-400">
-                  <div>Trace: {(matrixValues[0] + matrixValues[3]).toFixed(3)}</div>
-                  <div>Det: {(matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2]).toFixed(3)}</div>
-                  <div>Spectral Radius: {eigenAnalysis.spectralRadius.toFixed(3)}</div>
-                  
+              <div className="mt-3 pt-3 border-t border-slate-600 ">
+                <div className="text-xs text-slate-400 flex flex-row justify-between">
+                  {/* Informations sur la stabilité */}
+                  <div>
+                    <div>Trace: {isNaN(matrixValues[0] + matrixValues[3]) ? '0.000' : (matrixValues[0] + matrixValues[3]).toFixed(3)}</div>
+                    <div>Det: {isNaN(matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2]) ? '0.000' : (matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2]).toFixed(3)}</div>
+                    <div>Spectral Radius: {isNaN(eigenAnalysis.spectralRadius) ? '0.000' : eigenAnalysis.spectralRadius.toFixed(3)}</div>
+                  </div>
+
                   {/* Valeurs propres */}
                   <div className="pt-2 border-t border-slate-700">
                     <div className="font-semibold text-slate-300 mb-1">Valeurs propres:</div>
                     <>
-                      <div>λ₁: {eigenAnalysis.eigenvalue1.real ? eigenAnalysis.eigenvalue1.real.toFixed(3) : eigenAnalysis.eigenvalue1.toFixed(3)} {eigenAnalysis.eigenvalue1.imag !== undefined ? (eigenAnalysis.eigenvalue1.imag >= 0 ? '+' : '') + eigenAnalysis.eigenvalue1.imag.toFixed(3) + 'i' : '+0.000i'}</div>
-                      <div>λ₂: {eigenAnalysis.eigenvalue2.real ? eigenAnalysis.eigenvalue2.real.toFixed(3) : eigenAnalysis.eigenvalue2.toFixed(3)} {eigenAnalysis.eigenvalue2.imag !== undefined ? (eigenAnalysis.eigenvalue2.imag >= 0 ? '+' : '') + eigenAnalysis.eigenvalue2.imag.toFixed(3) + 'i' : '+0.000i'}</div>
+                      <div>λ₁: {(() => {
+                        const real1 = eigenAnalysis.eigenvalue1.real || eigenAnalysis.eigenvalue1 || 0;
+                        const imag1 = eigenAnalysis.eigenvalue1.imag || 0;
+                        return `${isNaN(real1) ? '0.000' : real1.toFixed(3)}${isNaN(imag1) ? '' : (imag1 >= 0 ? '+' : '') + imag1.toFixed(3) + 'i'}`;
+                      })()}</div>
+                      <div>λ₂: {(() => {
+                        const real2 = eigenAnalysis.eigenvalue2.real || eigenAnalysis.eigenvalue2 || 0;
+                        const imag2 = eigenAnalysis.eigenvalue2.imag || 0;
+                        return `${isNaN(real2) ? '0.000' : real2.toFixed(3)}${isNaN(imag2) ? '' : (imag2 >= 0 ? '+' : '') + imag2.toFixed(3) + 'i'}`;
+                      })()}</div>
                     </>
                   </div>
                   
                   {/* Vecteurs propres */}
                   <div className="pt-2 border-t border-slate-700">
                     <div className="font-semibold text-slate-300 mb-1">Vecteurs propres:</div>
-                    <div>v₁: [{eigenAnalysis.eigenvector1.x.real.toFixed(3)}{eigenAnalysis.eigenvector1.x.imag >= 0 ? '+' : ''}{eigenAnalysis.eigenvector1.x.imag.toFixed(3)}i, {eigenAnalysis.eigenvector1.y.real.toFixed(3)}{eigenAnalysis.eigenvector1.y.imag >= 0 ? '+' : ''}{eigenAnalysis.eigenvector1.y.imag.toFixed(3)}i]</div>
-                    <div>v₂: [{eigenAnalysis.eigenvector2.x.real.toFixed(3)}{eigenAnalysis.eigenvector2.x.imag >= 0 ? '+' : ''}{eigenAnalysis.eigenvector2.x.imag.toFixed(3)}i, {eigenAnalysis.eigenvector2.y.real.toFixed(3)}{eigenAnalysis.eigenvector2.y.imag >= 0 ? '+' : ''}{eigenAnalysis.eigenvector2.y.imag.toFixed(3)}i]</div>
+                    <div>v₁: [{(() => {
+                      const xReal = eigenAnalysis.eigenvector1?.x?.real || 0;
+                      const xImag = eigenAnalysis.eigenvector1?.x?.imag || 0;
+                      const yReal = eigenAnalysis.eigenvector1?.y?.real || 0;
+                      const yImag = eigenAnalysis.eigenvector1?.y?.imag || 0;
+                      return `${isNaN(xReal) ? '0.000' : xReal.toFixed(3)}${isNaN(xImag) ? '' : (xImag >= 0 ? '+' : '') + xImag.toFixed(3) + 'i'}, ${isNaN(yReal) ? '0.000' : yReal.toFixed(3)}${isNaN(yImag) ? '' : (yImag >= 0 ? '+' : '') + yImag.toFixed(3) + 'i'}`;
+                    })()}]</div>
+                    <div>v₂: [{(() => {
+                      const xReal = eigenAnalysis.eigenvector2?.x?.real || 0;
+                      const xImag = eigenAnalysis.eigenvector2?.x?.imag || 0;
+                      const yReal = eigenAnalysis.eigenvector2?.y?.real || 0;
+                      const yImag = eigenAnalysis.eigenvector2?.y?.imag || 0;
+                      return `${isNaN(xReal) ? '0.000' : xReal.toFixed(3)}${isNaN(xImag) ? '' : (xImag >= 0 ? '+' : '') + xImag.toFixed(3) + 'i'}, ${isNaN(yReal) ? '0.000' : yReal.toFixed(3)}${isNaN(yImag) ? '' : (yImag >= 0 ? '+' : '') + yImag.toFixed(3) + 'i'}`;
+                    })()}]</div>
                   </div>
                 </div>
               </div>
@@ -621,6 +827,7 @@ export default function ReservoirLinearViz() {
           <CustomGrid />
           <Axes />
           <MatrixVisualization matrix={W} />
+          <EigenVisualization eigenAnalysis={eigenAnalysis} />
           <VectorField matrix={W} />
           <UnitCircle />
           <ParticleSystem particles={particles} />
