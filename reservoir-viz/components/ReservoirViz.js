@@ -430,7 +430,7 @@ const EigenVisualization = ({ eigenAnalysis }) => {
         {/* Tête de flèche */}
         <mesh 
           position={[end.x, end.y, end.z]}
-          rotation={[phi, theta, 0]}
+          rotation={end.z < 0 ? [phi + Math.PI, theta, 0] : [phi, theta, 0]}
         >
           <coneGeometry args={[arrowSize, arrowHeight, 8]} />
           <meshBasicMaterial color={color} transparent opacity={VISUAL_CONFIG.EIGEN_OPACITY} />
