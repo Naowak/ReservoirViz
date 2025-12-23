@@ -205,7 +205,7 @@ const CustomGrid = () => {
 }
 
 // 5. Axes X, Y et Z
-const Axes = () => {
+const Axes = ({ showImaginaryAxis = true, showAxesXY = true }) => {
   const axisLength = VISUAL_CONFIG.AXIS_LENGTH;
   const thickness = VISUAL_CONFIG.AXIS_THICKNESS;
   const arrowSize = VISUAL_CONFIG.AXIS_ARROW_SIZE;
@@ -213,53 +213,60 @@ const Axes = () => {
   
   return (
     <group>
-      {/* Axe X (Rouge) - Partie réelle */}
-      <group>
-        {/* Ligne X */}
-        <mesh position={[axisLength / 2, 0, 0]}>
-          <boxGeometry args={[axisLength, thickness, thickness]} />
-          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_X_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
-        </mesh>
-        {/* Flèche X positive */}
-        <mesh position={[axisLength - arrowHeight/2 + 0.01, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
-          <coneGeometry args={[arrowSize, arrowHeight, 8]} />
-          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_X_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
-        </mesh>
-      </group>
+      {/* Axes X et Y (Parties réelles) - Conditionnels */}
+      {showAxesXY && (
+        <>
+          {/* Axe X (Rouge) - Partie réelle */}
+          <group>
+            {/* Ligne X */}
+            <mesh position={[axisLength / 2, 0, 0]}>
+              <boxGeometry args={[axisLength, thickness, thickness]} />
+              <meshBasicMaterial color={VISUAL_CONFIG.AXIS_X_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+            </mesh>
+            {/* Flèche X positive */}
+            <mesh position={[axisLength - arrowHeight/2 + 0.01, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+              <coneGeometry args={[arrowSize, arrowHeight, 8]} />
+              <meshBasicMaterial color={VISUAL_CONFIG.AXIS_X_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+            </mesh>
+          </group>
+          
+          {/* Axe Y (Vert) - Partie réelle */}
+          <group>
+            {/* Ligne Y */}
+            <mesh position={[0, axisLength / 2, 0]}>
+              <boxGeometry args={[thickness, axisLength, thickness]} />
+              <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Y_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+            </mesh>
+            {/* Flèche Y positive */}
+            <mesh position={[0, axisLength - arrowHeight/2 + 0.01, 0]}>
+              <coneGeometry args={[arrowSize, arrowHeight, 8]} />
+              <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Y_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+            </mesh>
+          </group>
+        </>
+      )}
       
-      {/* Axe Y (Vert) - Partie réelle */}
-      <group>
-        {/* Ligne Y */}
-        <mesh position={[0, axisLength / 2, 0]}>
-          <boxGeometry args={[thickness, axisLength, thickness]} />
-          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Y_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
-        </mesh>
-        {/* Flèche Y positive */}
-        <mesh position={[0, axisLength - arrowHeight/2 + 0.01, 0]}>
-          <coneGeometry args={[arrowSize, arrowHeight, 8]} />
-          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Y_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
-        </mesh>
-      </group>
-      
-      {/* Axe Z (Bleu) - Axe imaginaire i */}
-      <group>
-        {/* Ligne Z */}
-        <mesh position={[0, 0, axisLength / 2]}>
-          <boxGeometry args={[thickness, thickness, axisLength]} />
-          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Z_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
-        </mesh>
-        {/* Flèche Z positive */}
-        <mesh position={[0, 0, axisLength - arrowHeight/2 + 0.01]} rotation={[Math.PI / 2, 0, 0]}>
-          <coneGeometry args={[arrowSize, arrowHeight, 8]} />
-          <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Z_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
-        </mesh>
-      </group>
+      {/* Axe Z (Bleu) - Axe imaginaire i - Conditionnel */}
+      {showImaginaryAxis && (
+        <group>
+          {/* Ligne Z */}
+          <mesh position={[0, 0, axisLength / 2]}>
+            <boxGeometry args={[thickness, thickness, axisLength]} />
+            <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Z_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+          </mesh>
+          {/* Flèche Z positive */}
+          <mesh position={[0, 0, axisLength - arrowHeight/2 + 0.01]} rotation={[Math.PI / 2, 0, 0]}>
+            <coneGeometry args={[arrowSize, arrowHeight, 8]} />
+            <meshBasicMaterial color={VISUAL_CONFIG.AXIS_Z_COLOR} transparent opacity={VISUAL_CONFIG.AXIS_OPACITY} />
+          </mesh>
+        </group>
+      )}
     </group>
   );
 };
 
 // 6. Visualisation de la matrice W (vecteurs colonnes)
-const MatrixVisualization = ({ matrix }) => {
+const MatrixVisualization = ({ matrix, showMatrixVectors = true }) => {
   const thickness = VISUAL_CONFIG.MATRIX_VECTOR_THICKNESS;
   const arrowSize = VISUAL_CONFIG.MATRIX_ARROW_SIZE;
   const arrowHeight = VISUAL_CONFIG.MATRIX_ARROW_HEIGHT;
@@ -273,6 +280,8 @@ const MatrixVisualization = ({ matrix }) => {
   const col2 = { x: matrix.b, y: matrix.d };
   const col2Length = Math.sqrt(col2.x * col2.x + col2.y * col2.y);
   const col2Angle = Math.atan2(col2.y, col2.x);
+  
+  if (!showMatrixVectors) return null;
   
   return (
     <group>
@@ -328,7 +337,7 @@ const MatrixVisualization = ({ matrix }) => {
 };
 
 // 7. Visualisation des valeurs propres et vecteurs propres
-const EigenVisualization = ({ eigenAnalysis }) => {
+const EigenVisualization = ({ eigenAnalysis, showEigenvalues = true, showEigenvectors = true }) => {
   const thickness = VISUAL_CONFIG.EIGEN_VECTOR_THICKNESS;
   const arrowSize = VISUAL_CONFIG.EIGEN_ARROW_SIZE;
   const arrowHeight = VISUAL_CONFIG.EIGEN_ARROW_HEIGHT;
@@ -381,12 +390,12 @@ const EigenVisualization = ({ eigenAnalysis }) => {
   };
 
   // Calcul des positions des valeurs propres (comme vecteurs depuis l'origine)
-  const eigenValue1Vec = createComplexVector(eigenAnalysis.eigenvalue1, 1.5);
-  const eigenValue2Vec = createComplexVector(eigenAnalysis.eigenvalue2, 1.5);
+  const eigenValue1Vec = createComplexVector(eigenAnalysis.eigenvalue1, 1);
+  const eigenValue2Vec = createComplexVector(eigenAnalysis.eigenvalue2, 1);
   
   // Calcul des vecteurs propres
-  const eigenVector1 = createEigenVector(eigenAnalysis.eigenvector1, 1.2);
-  const eigenVector2 = createEigenVector(eigenAnalysis.eigenvector2, 1.2);
+  const eigenVector1 = createEigenVector(eigenAnalysis.eigenvector1, 1);
+  const eigenVector2 = createEigenVector(eigenAnalysis.eigenvector2, 1);
   
   // Fonction pour créer une flèche 3D
   const Arrow3D = ({ start, end, color, thickness: t }) => {
@@ -460,37 +469,47 @@ const EigenVisualization = ({ eigenAnalysis }) => {
   
   return (
     <group>
-      {/* Valeur propre λ₁ (comme vecteur) */}
-      <Arrow3D 
-        start={{x: 0, y: 0, z: 0}} 
-        end={eigenValue1Vec} 
-        color={VISUAL_CONFIG.EIGEN_VALUE_1_COLOR} 
-        thickness={thickness/2}
-      />
+      {/* Valeurs propres (comme vecteurs) */}
+      {showEigenvalues && (
+        <>
+          {/* Valeur propre λ₁ (comme vecteur) */}
+          <Arrow3D 
+            start={{x: 0, y: 0, z: 0}} 
+            end={eigenValue1Vec} 
+            color={VISUAL_CONFIG.EIGEN_VALUE_1_COLOR} 
+            thickness={thickness/2}
+          />
 
-      {/* Valeur propre λ₂ (comme vecteur) */}
-      <Arrow3D 
-        start={{x: 0, y: 0, z: 0}} 
-        end={eigenValue2Vec} 
-        color={VISUAL_CONFIG.EIGEN_VALUE_2_COLOR} 
-        thickness={thickness/2}
-      />
+          {/* Valeur propre λ₂ (comme vecteur) */}
+          <Arrow3D 
+            start={{x: 0, y: 0, z: 0}} 
+            end={eigenValue2Vec} 
+            color={VISUAL_CONFIG.EIGEN_VALUE_2_COLOR} 
+            thickness={thickness/2}
+          />
+        </>
+      )}
 
-      {/* Vecteur propre v₁ */}
-      <Arrow3D 
-        start={{x: 0, y: 0, z: 0}} 
-        end={eigenVector1} 
-        color={VISUAL_CONFIG.EIGEN_VECTOR_1_COLOR} 
-        thickness={thickness}
-      />
+      {/* Vecteurs propres */}
+      {showEigenvectors && (
+        <>
+          {/* Vecteur propre v₁ */}
+          <Arrow3D 
+            start={{x: 0, y: 0, z: 0}} 
+            end={eigenVector1} 
+            color={VISUAL_CONFIG.EIGEN_VECTOR_1_COLOR} 
+            thickness={thickness}
+          />
 
-      {/* Vecteur propre v₂ */}
-      <Arrow3D 
-        start={{x: 0, y: 0, z: 0}} 
-        end={eigenVector2} 
-        color={VISUAL_CONFIG.EIGEN_VECTOR_2_COLOR} 
-        thickness={thickness}
-      />
+          {/* Vecteur propre v₂ */}
+          <Arrow3D 
+            start={{x: 0, y: 0, z: 0}} 
+            end={eigenVector2} 
+            color={VISUAL_CONFIG.EIGEN_VECTOR_2_COLOR} 
+            thickness={thickness}
+          />
+        </>
+      )}
     </group>
   );
 };
@@ -505,6 +524,13 @@ export default function ReservoirLinearViz() {
   const [matrixValues, setMatrixValues] = useState(INIT_MATRIX_VALUES); // Matrice identité scaled
   const [particles, setParticles] = useState([]);
   const [stepCount, setStepCount] = useState(0);
+  
+  // États pour contrôler l'affichage des éléments 3D
+  const [showImaginaryAxis, setShowImaginaryAxis] = useState(false);
+  const [showEigenvalues, setShowEigenvalues] = useState(false);
+  const [showEigenvectors, setShowEigenvectors] = useState(false);
+  const [showMatrixVectors, setShowMatrixVectors] = useState(true);
+  const [showAxesXY, setShowAxesXY] = useState(true);
 
   const W = useMemo(() => ({
     a: matrixValues[0],
@@ -829,7 +855,65 @@ export default function ReservoirLinearViz() {
                   </div>
                 </div>
               </div>
-            </div>        
+            </div>
+            
+            {/* Contrôles d'affichage 3D */}
+            <div className="bg-slate-700/30 p-3 rounded-lg">
+              <div className="text-xs font-semibold text-slate-300 mb-3">Affichage 3D</div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showAxesXY}
+                    onChange={(e) => setShowAxesXY(e.target.checked)}
+                    className="w-3 h-3 text-cyan-600 bg-slate-600 border-slate-500 rounded focus:ring-cyan-500"
+                  />
+                  <span className="text-xs text-slate-300">Axes réels (X, Y)</span>
+                </label>
+                
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showImaginaryAxis}
+                    onChange={(e) => setShowImaginaryAxis(e.target.checked)}
+                    className="w-3 h-3 text-cyan-600 bg-slate-600 border-slate-500 rounded focus:ring-cyan-500"
+                  />
+                  <span className="text-xs text-slate-300">Axe imaginaire (Z)</span>
+                </label>
+                
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showMatrixVectors}
+                    onChange={(e) => setShowMatrixVectors(e.target.checked)}
+                    className="w-3 h-3 text-cyan-600 bg-slate-600 border-slate-500 rounded focus:ring-cyan-500"
+                  />
+                  <span className="text-xs text-slate-300">Colonnes matrice W</span>
+                </label>
+                
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showEigenvalues}
+                    onChange={(e) => setShowEigenvalues(e.target.checked)}
+                    className="w-3 h-3 text-cyan-600 bg-slate-600 border-slate-500 rounded focus:ring-cyan-500"
+                  />
+                  <span className="text-xs text-slate-300">Valeurs propres (λ)</span>
+                </label>
+                
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showEigenvectors}
+                    onChange={(e) => setShowEigenvectors(e.target.checked)}
+                    className="w-3 h-3 text-cyan-600 bg-slate-600 border-slate-500 rounded focus:ring-cyan-500"
+                  />
+                  <span className="text-xs text-slate-300">Vecteurs propres (v)</span>
+                </label>
+              </div>
+            </div>
+            
+            
           </div>
         </div>
       </div>
@@ -842,9 +926,9 @@ export default function ReservoirLinearViz() {
           <pointLight position={[10, 10, 10]} intensity={1} />
           
           <CustomGrid />
-          <Axes />
-          <MatrixVisualization matrix={W} />
-          <EigenVisualization eigenAnalysis={eigenAnalysis} />
+          <Axes showImaginaryAxis={showImaginaryAxis} showAxesXY={showAxesXY} />
+          <MatrixVisualization matrix={W} showMatrixVectors={showMatrixVectors} />
+          <EigenVisualization eigenAnalysis={eigenAnalysis} showEigenvalues={showEigenvalues} showEigenvectors={showEigenvectors} />
           <VectorField matrix={W} />
           <UnitCircle />
           <ParticleSystem particles={particles} />
