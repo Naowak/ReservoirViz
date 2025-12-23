@@ -764,12 +764,15 @@ export default function ReservoirLinearViz() {
               </div>
               
               {/* Informations sur la stabilité */}
-              <div className="mt-3 pt-3 border-t border-slate-600">
-                <div className="text-xs text-slate-400">
-                  <div>Trace: {isNaN(matrixValues[0] + matrixValues[3]) ? '0.000' : (matrixValues[0] + matrixValues[3]).toFixed(3)}</div>
-                  <div>Det: {isNaN(matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2]) ? '0.000' : (matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2]).toFixed(3)}</div>
-                  <div>Spectral Radius: {isNaN(eigenAnalysis.spectralRadius) ? '0.000' : eigenAnalysis.spectralRadius.toFixed(3)}</div>
-                  
+              <div className="mt-3 pt-3 border-t border-slate-600 ">
+                <div className="text-xs text-slate-400 flex flex-row justify-between">
+                  {/* Informations sur la stabilité */}
+                  <div>
+                    <div>Trace: {isNaN(matrixValues[0] + matrixValues[3]) ? '0.000' : (matrixValues[0] + matrixValues[3]).toFixed(3)}</div>
+                    <div>Det: {isNaN(matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2]) ? '0.000' : (matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2]).toFixed(3)}</div>
+                    <div>Spectral Radius: {isNaN(eigenAnalysis.spectralRadius) ? '0.000' : eigenAnalysis.spectralRadius.toFixed(3)}</div>
+                  </div>
+
                   {/* Valeurs propres */}
                   <div className="pt-2 border-t border-slate-700">
                     <div className="font-semibold text-slate-300 mb-1">Valeurs propres:</div>
@@ -807,36 +810,7 @@ export default function ReservoirLinearViz() {
                   </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Légende des éléments 3D */}
-            <div className="bg-slate-700/30 p-3 rounded-lg">
-              <div className="text-xs font-semibold text-slate-300 mb-2">Éléments 3D</div>
-              <div className="space-y-1 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-0.5 bg-amber-500"></div>
-                  <span className="text-amber-400">Colonnes W</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-0.5 bg-cyan-400"></div>
-                  <span className="text-cyan-400">λ₁</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-0.5 bg-pink-400"></div>
-                  <span className="text-pink-400">λ₂</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-0.5 bg-emerald-500"></div>
-                  <span className="text-emerald-400">v₁</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-0.5 bg-orange-500"></div>
-                  <span className="text-orange-400">v₂</span>
-                </div>
-              </div>
-            </div>
-            
-            
+            </div>        
           </div>
         </div>
       </div>
