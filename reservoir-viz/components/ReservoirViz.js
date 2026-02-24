@@ -901,8 +901,8 @@ export default function ReservoirLinearViz() {
           </div>
 
         {/* Contrôles d'affichage 3D - Pleine largeur */}
-        <div className="bg-slate-700/30 p-3 rounded-lg -mx-6 px-6">
-          <div className="text-xs font-semibold text-slate-300 mb-3">Affichage 3D</div>
+        <div className="bg-slate-700/30 p-3 rounded-lg -mx-6 px-6 border-t">
+          {/* <div className="text-xs font-semibold text-slate-300 mb-3">Affichage 3D</div> */}
           <div className="grid grid-cols-3 gap-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
