@@ -15,7 +15,7 @@ const VISUAL_CONFIG = {
   VECTOR_MAX_SCALE: 1,
   VECTOR_BODY_COLOR: "#475569",
   VECTOR_HEAD_COLOR: "#64748b",
-  VECTOR_OPACITY: 0.3,
+  VECTOR_OPACITY: 0.4,
   ARROW_BODY_LENGTH: 0.005,
   ARROW_BODY_THICKNESS: 0.01,
   ARROW_HEAD_RADIUS: 0.02,
@@ -71,6 +71,12 @@ const VISUAL_CONFIG = {
   EIGEN_OPACITY: 0.9,
   EIGEN_ARROW_SIZE: 0.04,
   EIGEN_ARROW_HEIGHT: 0.1,
+  
+  // État du réservoir
+  RESERVOIR_STATE_RADIUS: 0.12,
+  RESERVOIR_STATE_COLOR: "#ef4444",
+  RESERVOIR_STATE_OPACITY: 0.9,
+  RESERVOIR_STATE_EMISSIVE_INTENSITY: 2,
   
   // Animation
   ANIMATION_SPEED_MULTIPLIER: 1.0,
@@ -336,7 +342,32 @@ const MatrixVisualization = ({ matrix, showMatrixVectors = true }) => {
   );
 };
 
-// 7. Visualisation des valeurs propres et vecteurs propres
+// 7. État du Réservoir (Point rouge = somme de tous les points)
+const ReservoirState = ({ x, y }) => {
+  const mesh = useRef();
+  
+  useFrame(() => {
+    if (!mesh.current) return;
+    const scale = 1 + Math.sin(Date.now() * 0.003) * 0.2;
+    mesh.current.scale.set(scale, scale, scale);
+  });
+
+  return (
+    <mesh ref={mesh} position={[x, y, 0]}>
+      <sphereGeometry args={[VISUAL_CONFIG.RESERVOIR_STATE_RADIUS, 16, 16]} />
+      <meshStandardMaterial 
+        color={VISUAL_CONFIG.RESERVOIR_STATE_COLOR} 
+        emissive={VISUAL_CONFIG.RESERVOIR_STATE_COLOR}
+        emissiveIntensity={VISUAL_CONFIG.RESERVOIR_STATE_EMISSIVE_INTENSITY}
+        transparent 
+        opacity={VISUAL_CONFIG.RESERVOIR_STATE_OPACITY} 
+      />
+      <pointLight distance={2} intensity={3} color={VISUAL_CONFIG.RESERVOIR_STATE_COLOR} />
+    </mesh>
+  );
+};
+
+// 8. Visualisation des valeurs propres et vecteurs propres
 const EigenVisualization = ({ eigenAnalysis, showEigenvalues = true, showEigenvectors = true }) => {
   const thickness = VISUAL_CONFIG.EIGEN_VECTOR_THICKNESS;
   const arrowSize = VISUAL_CONFIG.EIGEN_ARROW_SIZE;
@@ -531,6 +562,7 @@ export default function ReservoirLinearViz() {
   const [showEigenvectors, setShowEigenvectors] = useState(false);
   const [showMatrixVectors, setShowMatrixVectors] = useState(true);
   const [showAxesXY, setShowAxesXY] = useState(true);
+  const [showReservoirState, setShowReservoirState] = useState(true);
 
   const W = useMemo(() => ({
     a: matrixValues[0],
@@ -727,6 +759,16 @@ export default function ReservoirLinearViz() {
     setStepCount(0);
   };
 
+  // Calcul de l'état du réservoir (somme de tous les points blancs)
+  const reservoirState = useMemo(() => {
+    let sumX = 0, sumY = 0;
+    particles.forEach(p => {
+      sumX += p.x;
+      sumY += p.y;
+    });
+    return { x: sumX, y: sumY };
+  }, [particles]);
+
   return (
     <div className="w-full h-screen bg-slate-900 text-slate-100 flex flex-col md:flex-row font-sans overflow-hidden">
       
@@ -910,6 +952,16 @@ export default function ReservoirLinearViz() {
                   />
                   <span className="text-xs text-slate-300">Vecteurs propres (v)</span>
                 </label>
+                
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showReservoirState}
+                    onChange={(e) => setShowReservoirState(e.target.checked)}
+                    className="w-3 h-3 text-cyan-600 bg-slate-600 border-slate-500 rounded focus:ring-cyan-500"
+                  />
+                  <span className="text-xs text-slate-300">État du réservoir (∑)</span>
+                </label>
               </div>
             </div>
             
@@ -932,6 +984,7 @@ export default function ReservoirLinearViz() {
           <VectorField matrix={W} />
           <UnitCircle />
           <ParticleSystem particles={particles} />
+          {showReservoirState && particles.length > 0 && <ReservoirState x={reservoirState.x} y={reservoirState.y} />}
 
           <OrbitControls 
             enablePan={true} 
