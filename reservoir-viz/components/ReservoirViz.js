@@ -447,7 +447,7 @@ const Section = ({ title, children, t }) => (
    MAIN COMPONENT
 ───────────────────────────────────────────────────────────── */
 export default function ReservoirLinearViz() {
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
   const t = themes[isDark ? 'dark' : 'light'];
 
   const [matrixValues, setMatrixValues] = useState(INIT_MATRIX_VALUES);
@@ -457,9 +457,9 @@ export default function ReservoirLinearViz() {
   const [showImaginaryAxis, setShowImaginaryAxis] = useState(false);
   const [showEigenvalues, setShowEigenvalues] = useState(false);
   const [showEigenvectors, setShowEigenvectors] = useState(false);
-  const [showMatrixVectors, setShowMatrixVectors] = useState(true);
+  const [showMatrixVectors, setShowMatrixVectors] = useState(false);
   const [showAxesXY, setShowAxesXY] = useState(true);
-  const [showReservoirState, setShowReservoirState] = useState(true);
+  const [showReservoirState, setShowReservoirState] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const parseVal = useCallback((val) => {
@@ -549,7 +549,7 @@ export default function ReservoirLinearViz() {
     return { x: sx, y: sy };
   }, [particles]);
 
-  const isStable = eigenAnalysis.spectralRadius < 1;
+  const isStable = eigenAnalysis.spectralRadius <= 1;
   
   const trace = W.a + W.d;
   const det = W.a * W.d - W.b * W.c;
@@ -580,7 +580,7 @@ export default function ReservoirLinearViz() {
   /* ── Styles ── */
   const panelStyle = {
     background: t.panel, borderRight: `1px solid ${t.border}`, display: 'flex', flexDirection: 'column', gap: 0,
-    overflowY: 'auto', width: sidebarOpen ? 310 : 0, minWidth: sidebarOpen ? 310 : 0,
+    overflowY: 'auto', width: sidebarOpen ? 330 : 0, minWidth: sidebarOpen ? 330 : 0,
     transition: 'width 0.25s ease, min-width 0.25s ease', overflow: 'scroll',
   };
 
