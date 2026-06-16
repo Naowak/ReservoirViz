@@ -14,18 +14,18 @@ const VISUAL_CONFIG = {
   VECTOR_MAX_SCALE: 1,
   VECTOR_BODY_COLOR: "#475569",
   VECTOR_HEAD_COLOR: "#64748b",
-  VECTOR_OPACITY: 0.2,
+  VECTOR_OPACITY: 0.15,
   ARROW_BODY_LENGTH: 0.005,
   ARROW_BODY_THICKNESS: 0.01,
   ARROW_HEAD_RADIUS: 0.02,
   ARROW_HEAD_HEIGHT: 0.07,
   PARTICLE_RADIUS: 0.05,
-  PARTICLE_NEW_COLOR: "#22d3ee",
-  PARTICLE_OLD_COLOR: "#818cf8",
+  PARTICLE_NEW_COLOR: "#3ca7f4",
+  PARTICLE_OLD_COLOR: "#de1e1e",
   PARTICLE_NEW_OPACITY: 1.0,
   PARTICLE_OLD_OPACITY: 1,
-  PARTICLE_EMISSIVE_INTENSITY_NEW: 1.5,
-  PARTICLE_EMISSIVE_INTENSITY_OLD: 0.75,
+  PARTICLE_EMISSIVE_INTENSITY_NEW: 1,
+  PARTICLE_EMISSIVE_INTENSITY_OLD: 1,
   PARTICLE_LERP_SPEED: 0.05,
   PARTICLE_SCALE_AMPLITUDE: 0.1,
   PARTICLE_SCALE_FREQUENCY: 5,
@@ -59,7 +59,7 @@ const VISUAL_CONFIG = {
   EIGEN_ARROW_SIZE: 0.04,
   EIGEN_ARROW_HEIGHT: 0.1,
   RESERVOIR_STATE_RADIUS: 0.12,
-  RESERVOIR_STATE_COLOR: "#ef4444",
+  RESERVOIR_STATE_COLOR: "#e33bef",
   RESERVOIR_STATE_OPACITY: 0.9,
   RESERVOIR_STATE_EMISSIVE_INTENSITY: 2,
   INPUT_NOISE_AMPLITUDE: 1.0,
@@ -68,69 +68,31 @@ const VISUAL_CONFIG = {
 };
 
 const INIT_WIN_VALUES = [1, 0, 0, 1];
-const INIT_MATRIX_VALUES = [0, -1, 1, 0];
+const INIT_MATRIX_VALUES = ['0', '-1', '1', '0'];
 
 /* ─────────────────────────────────────────────────────────────
    THEME SYSTEM
 ───────────────────────────────────────────────────────────── */
 const themes = {
   dark: {
-    bg: '#0A0F1E',
-    panel: '#111827',
-    surface: '#1E293B',
-    surfaceHover: '#253347',
-    border: '#1E3A5F',
-    borderLight: '#1E293B',
-    text: '#F1F5F9',
-    textMuted: '#94A3B8',
-    textDim: '#64748B',
-    accent: '#06B6D4',
-    accentHover: '#22D3EE',
-    accentSoft: 'rgba(6,182,212,0.12)',
-    danger: '#EF4444',
-    success: '#10B981',
-    warning: '#F59E0B',
-    inputBg: '#0F172A',
-    gridColor: '#1e293b',
-    canvasBg: '#0A0F1E',
-    toggleBg: '#1E293B',
-    toggleThumb: '#06B6D4',
-    checkboxAccent: '#06B6D4',
-    badgeStable: 'rgba(16,185,129,0.15)',
-    badgeStableText: '#10B981',
-    badgeUnstable: 'rgba(239,68,68,0.15)',
-    badgeUnstableText: '#EF4444',
-    mono: '"JetBrains Mono", "Fira Code", monospace',
-    sans: '"Inter", system-ui, sans-serif',
+    bg: '#0A0F1E', panel: '#111827', surface: '#1E293B', surfaceHover: '#253347',
+    border: '#1E3A5F', borderLight: '#1E293B', text: '#F1F5F9', textMuted: '#94A3B8',
+    textDim: '#64748B', accent: '#06B6D4', accentHover: '#22D3EE', accentSoft: 'rgba(6,182,212,0.12)',
+    danger: '#EF4444', success: '#10B981', warning: '#F59E0B', inputBg: '#0F172A',
+    gridColor: '#1e293b', canvasBg: '#0A0F1E', toggleBg: '#1E293B', toggleThumb: '#06B6D4',
+    checkboxAccent: '#06B6D4', badgeStable: 'rgba(16,185,129,0.15)', badgeStableText: '#10B981',
+    badgeUnstable: 'rgba(239,68,68,0.15)', badgeUnstableText: '#EF4444',
+    mono: '"JetBrains Mono", "Fira Code", monospace', sans: '"Inter", system-ui, sans-serif',
   },
   light: {
-    bg: '#F0F4FF',
-    panel: '#FFFFFF',
-    surface: '#F1F5F9',
-    surfaceHover: '#E2E8F0',
-    border: '#CBD5E1',
-    borderLight: '#E2E8F0',
-    text: '#0F172A',
-    textMuted: '#475569',
-    textDim: '#94A3B8',
-    accent: '#0284C7',
-    accentHover: '#0369A1',
-    accentSoft: 'rgba(2,132,199,0.08)',
-    danger: '#DC2626',
-    success: '#059669',
-    warning: '#D97706',
-    inputBg: '#F8FAFC',
-    gridColor: '#CBD5E1',
-    canvasBg: '#E8EFFE',
-    toggleBg: '#E2E8F0',
-    toggleThumb: '#0284C7',
-    checkboxAccent: '#0284C7',
-    badgeStable: 'rgba(5,150,105,0.12)',
-    badgeStableText: '#059669',
-    badgeUnstable: 'rgba(220,38,38,0.12)',
-    badgeUnstableText: '#DC2626',
-    mono: '"JetBrains Mono", "Fira Code", monospace',
-    sans: '"Inter", system-ui, sans-serif',
+    bg: '#F0F4FF', panel: '#FFFFFF', surface: '#F1F5F9', surfaceHover: '#E2E8F0',
+    border: '#CBD5E1', borderLight: '#E2E8F0', text: '#0F172A', textMuted: '#475569',
+    textDim: '#94A3B8', accent: '#0284C7', accentHover: '#0369A1', accentSoft: 'rgba(2,132,199,0.08)',
+    danger: '#DC2626', success: '#059669', warning: '#D97706', inputBg: '#F8FAFC',
+    gridColor: '#CBD5E1', canvasBg: '#E8EFFE', toggleBg: '#E2E8F0', toggleThumb: '#0284C7',
+    checkboxAccent: '#0284C7', badgeStable: 'rgba(5,150,105,0.12)', badgeStableText: '#059669',
+    badgeUnstable: 'rgba(220,38,38,0.12)', badgeUnstableText: '#DC2626',
+    mono: '"JetBrains Mono", "Fira Code", monospace', sans: '"Inter", system-ui, sans-serif',
   }
 };
 
@@ -375,55 +337,88 @@ const MoonIcon = () => (
   </svg>
 );
 
-const MatrixInput = ({ label, value, onChange, t }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-    <label style={{ fontSize: 10, fontFamily: t.mono, color: t.textDim, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</label>
-    <input
-      type="number"
-      step="0.01"
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      style={{
-        background: t.inputBg,
-        border: `1px solid ${t.border}`,
-        borderRadius: 6,
-        padding: '6px 8px',
-        fontSize: 13,
-        fontFamily: t.mono,
-        color: t.text,
-        outline: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        transition: 'border-color 0.15s',
-      }}
-    />
-  </div>
-);
+const MatrixInput = ({ label, value, onChange, t }) => {
+  // 🔹 MODIFICATION : Fonction pour gérer le +0.05 / -0.05
+  const handleStep = (step) => {
+    // 1. On lit la valeur courante (en gérant la virgule)
+    const currentVal = parseFloat(String(value).replace(',', '.'));
+    const num = isNaN(currentVal) ? 0 : currentVal;
+    
+    // 2. On fait le calcul, et on force 2 décimales pour éviter les bugs JavaScript (ex: 0.15000000002)
+    const newVal = (num + step).toFixed(2);
+    
+    // 3. Number(newVal) enlève les zéros inutiles à la fin, String() le convertit pour le state
+    onChange(String(Number(newVal)));
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <label style={{ fontSize: 10, fontFamily: t.mono, color: t.textDim, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</label>
+      
+      {/* 🔹 MODIFICATION : Conteneur relatif pour placer les boutons pardessus l'input */}
+      <div style={{ position: 'relative', display: 'flex' }}>
+        <input
+          type="text"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          style={{
+            background: t.inputBg,
+            border: `1px solid ${t.border}`,
+            borderRadius: 6,
+            padding: '6px 20px 6px 8px', // Espace à droite augmenté (20px) pour ne pas cacher le texte sous les boutons
+            fontSize: 13,
+            fontFamily: t.mono,
+            color: t.text,
+            outline: 'none',
+            width: '100%',
+            boxSizing: 'border-box',
+            transition: 'border-color 0.15s',
+          }}
+        />
+        
+        {/* Colonne des boutons Up/Down */}
+        <div style={{ 
+          position: 'absolute', 
+          right: 2, 
+          top: 2, 
+          bottom: 2, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'center',
+          width: 16
+        }}>
+          <button 
+            onClick={() => handleStep(0.05)}
+            style={{ flex: 1, background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: t.textDim, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="+0.05"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
+          <button 
+            onClick={() => handleStep(-0.05)}
+            style={{ flex: 1, background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: t.textDim, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="-0.05"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Toggle = ({ checked, onChange, t }) => (
   <div
     onClick={() => onChange(!checked)}
     style={{
-      position: 'relative',
-      width: 36,
-      height: 20,
-      background: checked ? t.accent : t.toggleBg,
-      borderRadius: 10,
-      cursor: 'pointer',
-      transition: 'background 0.2s',
-      border: `1px solid ${checked ? t.accent : t.border}`,
-      flexShrink: 0,
+      position: 'relative', width: 36, height: 20, background: checked ? t.accent : t.toggleBg,
+      borderRadius: 10, cursor: 'pointer', transition: 'background 0.2s',
+      border: `1px solid ${checked ? t.accent : t.border}`, flexShrink: 0,
     }}
   >
     <div style={{
-      position: 'absolute',
-      top: 2,
-      left: checked ? 17 : 2,
-      width: 14,
-      height: 14,
-      background: checked ? '#fff' : t.textDim,
-      borderRadius: '50%',
-      transition: 'left 0.2s',
+      position: 'absolute', top: 2, left: checked ? 17 : 2, width: 14, height: 14,
+      background: checked ? '#fff' : t.textDim, borderRadius: '50%', transition: 'left 0.2s',
     }} />
   </div>
 );
@@ -434,14 +429,8 @@ const Divider = ({ t }) => (
 
 const Badge = ({ children, color, bg }) => (
   <span style={{
-    background: bg,
-    color,
-    fontSize: 10,
-    fontWeight: 600,
-    padding: '2px 8px',
-    borderRadius: 20,
-    letterSpacing: '0.05em',
-    textTransform: 'uppercase',
+    background: bg, color, fontSize: 10, fontWeight: 600, padding: '2px 8px',
+    borderRadius: 20, letterSpacing: '0.05em', textTransform: 'uppercase',
   }}>{children}</span>
 );
 
@@ -473,16 +462,28 @@ export default function ReservoirLinearViz() {
   const [showReservoirState, setShowReservoirState] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  const parseVal = useCallback((val) => {
+    const parsed = parseFloat(String(val).replace(',', '.'));
+    return isNaN(parsed) ? 0 : parsed;
+  }, []);
+
   const W = useMemo(() => ({
-    a: matrixValues[0], b: matrixValues[1], c: matrixValues[2], d: matrixValues[3]
-  }), [matrixValues]);
+    a: parseVal(matrixValues[0]), 
+    b: parseVal(matrixValues[1]), 
+    c: parseVal(matrixValues[2]), 
+    d: parseVal(matrixValues[3])
+  }), [matrixValues, parseVal]);
 
   const updateMatrixValue = useCallback((index, value) => {
-    setMatrixValues(prev => { const n = [...prev]; n[index] = parseFloat(value) || 0; return n; });
+    setMatrixValues(prev => { 
+      const n = [...prev]; 
+      n[index] = value; 
+      return n; 
+    });
   }, []);
 
   const eigenAnalysis = useMemo(() => {
-    const [a, b, c, d] = matrixValues.map(v => isNaN(v) ? 0 : v);
+    const { a, b, c, d } = W; 
     const trace = a + d, det = a * d - b * c;
     const disc = trace * trace - 4 * det;
     if (isNaN(trace) || isNaN(det) || isNaN(disc)) {
@@ -521,7 +522,7 @@ export default function ReservoirLinearViz() {
       ? Math.sqrt((ev1.real || 0) ** 2 + (ev1.imag || 0) ** 2)
       : Math.max(Math.abs(ev1 || 0), Math.abs(ev2 || 0));
     return { eigenvalue1: ev1, eigenvalue2: ev2, eigenvector1: evec1, eigenvector2: evec2, isComplex, spectralRadius: isNaN(sr) ? 0 : sr };
-  }, [matrixValues]);
+  }, [W]); 
 
   const handleStep = useCallback((injectInput = false) => {
     setParticles(prev => {
@@ -549,8 +550,9 @@ export default function ReservoirLinearViz() {
   }, [particles]);
 
   const isStable = eigenAnalysis.spectralRadius < 1;
-  const trace = matrixValues[0] + matrixValues[3];
-  const det = matrixValues[0] * matrixValues[3] - matrixValues[1] * matrixValues[2];
+  
+  const trace = W.a + W.d;
+  const det = W.a * W.d - W.b * W.c;
 
   const fmtComplex = (real, imag) => {
     if (isNaN(real) && isNaN(imag)) return '0.000';
@@ -577,26 +579,14 @@ export default function ReservoirLinearViz() {
 
   /* ── Styles ── */
   const panelStyle = {
-    background: t.panel,
-    borderRight: `1px solid ${t.border}`,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 0,
-    overflowY: 'auto',
-    width: sidebarOpen ? 310 : 0,
-    minWidth: sidebarOpen ? 310 : 0,
-    transition: 'width 0.25s ease, min-width 0.25s ease',
-    overflow: 'scroll',
+    background: t.panel, borderRight: `1px solid ${t.border}`, display: 'flex', flexDirection: 'column', gap: 0,
+    overflowY: 'auto', width: sidebarOpen ? 310 : 0, minWidth: sidebarOpen ? 310 : 0,
+    transition: 'width 0.25s ease, min-width 0.25s ease', overflow: 'scroll',
   };
 
   const panelInner = {
-    width: 280,
-    minWidth: 280,
-    padding: '16px 16px 20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 20,
-    fontFamily: t.sans,
+    width: 280, minWidth: 280, padding: '16px 16px 20px', display: 'flex', flexDirection: 'column',
+    gap: 20, fontFamily: t.sans,
   };
 
   return (
@@ -604,15 +594,8 @@ export default function ReservoirLinearViz() {
 
       {/* ── TOP BAR ── */}
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 16px',
-        height: 48,
-        background: t.panel,
-        borderBottom: `1px solid ${t.border}`,
-        flexShrink: 0,
-        zIndex: 20,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px',
+        height: 48, background: t.panel, borderBottom: `1px solid ${t.border}`, flexShrink: 0, zIndex: 20,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button
@@ -627,10 +610,7 @@ export default function ReservoirLinearViz() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 11, fontFamily: t.mono, color: t.textDim }}>t = {stepCount}</span>
-          <Badge
-            color={isStable ? t.badgeStableText : t.badgeUnstableText}
-            bg={isStable ? t.badgeStable : t.badgeUnstable}
-          >
+          <Badge color={isStable ? t.badgeStableText : t.badgeUnstableText} bg={isStable ? t.badgeStable : t.badgeUnstable}>
             {isStable ? 'stable' : 'instable'}
           </Badge>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -653,20 +633,9 @@ export default function ReservoirLinearViz() {
               <button
                 onClick={() => handleStep(true)}
                 style={{
-                  background: t.accent,
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 8,
-                  padding: '10px 0',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  transition: 'background 0.15s',
+                  background: t.accent, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 0',
+                  fontSize: 13, fontWeight: 600, cursor: 'pointer', width: '100%', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'background 0.15s',
                   letterSpacing: '0.01em',
                 }}
               >
@@ -677,19 +646,9 @@ export default function ReservoirLinearViz() {
                 <button
                   onClick={() => handleStep(false)}
                   style={{
-                    background: t.surface,
-                    color: t.text,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: 8,
-                    padding: '8px 0',
-                    fontSize: 12,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 5,
-                    transition: 'background 0.15s',
+                    background: t.surface, color: t.text, border: `1px solid ${t.border}`, borderRadius: 8,
+                    padding: '8px 0', fontSize: 12, fontWeight: 500, cursor: 'pointer', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', gap: 5, transition: 'background 0.15s',
                   }}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -698,19 +657,9 @@ export default function ReservoirLinearViz() {
                 <button
                   onClick={handleReset}
                   style={{
-                    background: t.surface,
-                    color: t.danger,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: 8,
-                    padding: '8px 0',
-                    fontSize: 12,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 5,
-                    transition: 'background 0.15s',
+                    background: t.surface, color: t.danger, border: `1px solid ${t.border}`, borderRadius: 8,
+                    padding: '8px 0', fontSize: 12, fontWeight: 500, cursor: 'pointer', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', gap: 5, transition: 'background 0.15s',
                   }}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5"/></svg>
@@ -723,12 +672,7 @@ export default function ReservoirLinearViz() {
 
             {/* Matrix W */}
             <Section title="Matrice W (2×2)" t={t}>
-              <div style={{
-                background: t.surface,
-                border: `1px solid ${t.border}`,
-                borderRadius: 10,
-                padding: 12,
-              }}>
+              <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 10, padding: 12 }}>
                 {/* Visual matrix bracket */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                   <div style={{ width: 3, height: 52, borderTop: `2px solid ${t.border}`, borderLeft: `2px solid ${t.border}`, borderBottom: `2px solid ${t.border}`, borderRadius: '3px 0 0 3px' }} />
@@ -840,26 +784,14 @@ export default function ReservoirLinearViz() {
 
           {/* ── CANVAS OVERLAY: particle count + legend ── */}
           <div style={{
-            position: 'absolute',
-            bottom: 16,
-            right: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 6,
-            pointerEvents: 'none',
+            position: 'absolute', bottom: 16, right: 16, display: 'flex', flexDirection: 'column',
+            gap: 6, pointerEvents: 'none',
           }}>
             <div style={{
               background: isDark ? 'rgba(10,15,30,0.75)' : 'rgba(255,255,255,0.8)',
-              backdropFilter: 'blur(4px)',
-              border: `1px solid ${t.border}`,
-              borderRadius: 8,
-              padding: '8px 12px',
-              fontSize: 11,
-              fontFamily: t.mono,
-              color: t.textMuted,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 4,
+              backdropFilter: 'blur(4px)', border: `1px solid ${t.border}`, borderRadius: 8,
+              padding: '8px 12px', fontSize: 11, fontFamily: t.mono, color: t.textMuted,
+              display: 'flex', flexDirection: 'column', gap: 4,
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: VISUAL_CONFIG.PARTICLE_NEW_COLOR }} />
@@ -882,18 +814,9 @@ export default function ReservoirLinearViz() {
           {/* ── CANVAS OVERLAY: orbit hint ── */}
           {!sidebarOpen && (
             <div style={{
-              position: 'absolute',
-              top: 12,
-              left: 12,
-              background: isDark ? 'rgba(10,15,30,0.75)' : 'rgba(255,255,255,0.8)',
-              backdropFilter: 'blur(4px)',
-              border: `1px solid ${t.border}`,
-              borderRadius: 8,
-              padding: '6px 10px',
-              fontSize: 11,
-              fontFamily: t.mono,
-              color: t.textDim,
-              pointerEvents: 'none',
+              position: 'absolute', top: 12, left: 12, background: isDark ? 'rgba(10,15,30,0.75)' : 'rgba(255,255,255,0.8)',
+              backdropFilter: 'blur(4px)', border: `1px solid ${t.border}`, borderRadius: 8, padding: '6px 10px',
+              fontSize: 11, fontFamily: t.mono, color: t.textDim, pointerEvents: 'none',
             }}>
               t = {stepCount} · ρ = {eigenAnalysis.spectralRadius.toFixed(3)} · {isStable ? '✓ stable' : '⚠ instable'}
             </div>
